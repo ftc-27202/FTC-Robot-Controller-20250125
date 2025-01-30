@@ -1,0 +1,47 @@
+package org.firstinspires.ftc.teamcode;
+
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+
+@Config
+public final class Bot_Bucket {
+    final double BUCKET_CATCH = 0.5;
+    final double BUCKET_DUMP = 0.1;
+
+    private Servo bucket;
+
+    public Bot_Bucket(HardwareMap hardwareMap) {
+        bucket = hardwareMap.get(Servo.class, "bucket");
+    }
+
+    public class BucketDump implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            bucket.setPosition(BUCKET_DUMP);
+            packet.put("BucketPos", bucket.getPosition());
+            return false;
+        }
+    }
+
+    public Action BucketDump() {
+        return new BucketDump();
+    }
+
+    public class BucketCatch implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            bucket.setPosition(BUCKET_CATCH);
+            packet.put("BucketPos", bucket.getPosition());
+            return false;
+        }
+    }
+
+    public Action BucketCatch() {
+        return new BucketCatch();
+    }
+}

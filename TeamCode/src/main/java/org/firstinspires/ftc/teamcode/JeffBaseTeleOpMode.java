@@ -103,6 +103,7 @@ public class JeffBaseTeleOpMode extends OpMode {
     double armPositionFudgeFactor;
     int slideTargetPosition;
     double lastSlideActionTime = getRuntime();
+
     public void init() {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
