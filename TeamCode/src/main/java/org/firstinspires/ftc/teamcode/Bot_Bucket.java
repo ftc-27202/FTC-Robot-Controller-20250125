@@ -7,21 +7,23 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 @Config
 public final class Bot_Bucket {
     final double BUCKET_CATCH = 0.5;
     final double BUCKET_DUMP = 0.1;
 
-    private Servo bucket;
+    private ServoImplEx bucket;
 
     public Bot_Bucket(HardwareMap hardwareMap) {
-        bucket = hardwareMap.get(Servo.class, "bucket");
+        bucket = hardwareMap.get(ServoImplEx.class, "bucket");
     }
 
     public class BucketDump implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
+            bucket.setPwmEnable();
             bucket.setPosition(BUCKET_DUMP);
             packet.put("BucketPos", bucket.getPosition());
             return false;
@@ -35,6 +37,7 @@ public final class Bot_Bucket {
     public class BucketCatch implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
+            bucket.setPwmEnable();
             bucket.setPosition(BUCKET_CATCH);
             packet.put("BucketPos", bucket.getPosition());
             return false;
@@ -43,5 +46,16 @@ public final class Bot_Bucket {
 
     public Action BucketCatch() {
         return new BucketCatch();
+    }
+    public class BucketOff implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            bucket.setPwmDisable();
+            return false;
+        }
+    }
+
+    public Action BucketOff() {
+        return new BucketOff();
     }
 }

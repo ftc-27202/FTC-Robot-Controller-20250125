@@ -19,12 +19,13 @@ public final class Bot_Arm {
                     * 1 / 360.0; // Ticks per degree, not per rotation
     final double ARM_COLLAPSED_INTO_ROBOT = 0;
     final double ARM_DROP_SAMPLE_TO_ZONE = 70 * ARM_TICKS_PER_DEGREE;
+    final double ARM_DEPOSIT = 88 * ARM_TICKS_PER_DEGREE;
     final double ARM_STRAIGHT_UP = 90 * ARM_TICKS_PER_DEGREE;
-    final double ARM_DEPOSIT = 93 * ARM_TICKS_PER_DEGREE;
     final double ARM_CLEAR_BUCKET = 100 * ARM_TICKS_PER_DEGREE;
     final double ARM_SPECIMEN_BEFORE_SCORE = 85 * ARM_TICKS_PER_DEGREE;
     final double ARM_SPECIMEN_AFTER_SCORE = 115 * ARM_TICKS_PER_DEGREE;
     final double ARM_PREPARE_TO_COLLECT = 176 * ARM_TICKS_PER_DEGREE; // parallel to the ground
+    final double ARM_COLLECTED = 176 * ARM_TICKS_PER_DEGREE; // parallel to the ground
     final double ARM_COLLECT_SPECIMEN = 185 * ARM_TICKS_PER_DEGREE;
     final double ARM_COLLECT_SAMPLE = 188 * ARM_TICKS_PER_DEGREE;
 
@@ -44,7 +45,7 @@ public final class Bot_Arm {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
-                armMotor.setPower(1.0);
+                armMotor.setPower(0.50);
                 initialized = true;
             }
 
@@ -63,13 +64,38 @@ public final class Bot_Arm {
         return new ArmCollectSample();
     }
 
+    public class ArmCollected implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                armMotor.setPower(0.50);
+                initialized = true;
+            }
+
+            double pos = armMotor.getCurrentPosition();
+            packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
+            if (pos > ARM_COLLECTED) {
+                armMotor.setTargetPosition((int) ARM_COLLECTED);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public Action ArmCollected() {
+        return new ArmCollected();
+    }
+
     public class ArmCollectSpecimen implements Action {
         private boolean initialized = false;
 
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
-                armMotor.setPower(1.0);
+                armMotor.setPower(0.50);
                 initialized = true;
             }
 

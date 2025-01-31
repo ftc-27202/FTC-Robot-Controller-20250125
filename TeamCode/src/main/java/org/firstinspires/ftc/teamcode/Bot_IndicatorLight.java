@@ -7,16 +7,17 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 @Config
 public final class Bot_IndicatorLight {
     final double INDICATOR_LIGHT_OFF = 0;
     final double INDICATOR_LIGHT_GREEN = 0.5;
 
-    private Servo indicatorlight;
+    private ServoImplEx indicatorlight;
 
     public Bot_IndicatorLight(HardwareMap hardwareMap) {
-        indicatorlight = hardwareMap.get(Servo.class, "indicator_light");
+        indicatorlight = hardwareMap.get(ServoImplEx.class, "indicator_light");
     }
 
     public class TurnIndicatorLight_Off implements Action {

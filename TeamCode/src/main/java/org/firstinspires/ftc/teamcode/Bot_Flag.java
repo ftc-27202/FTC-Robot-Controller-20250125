@@ -7,17 +7,18 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 @Config
 public final class Bot_Flag {
     // For physical install, 1.0 = Flag is facing all the way down
     final double FLAG_DOWN = 1.0;
-    final double FLAG_SCORE = 0.30;
+    final double FLAG_SCORE = 0.20;
 
-    private Servo flag;
+    private ServoImplEx flag;
 
     public Bot_Flag(HardwareMap hardwareMap) {
-        flag = hardwareMap.get(Servo.class, "flag");
+        flag = hardwareMap.get(ServoImplEx.class, "flag");
     }
 
     public class FlagDown implements Action {

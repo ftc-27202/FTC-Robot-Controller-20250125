@@ -35,7 +35,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 @TeleOp(name = "Jeff Two Driver TeleOp", group = "Robot")
-//@Disabled
+@Disabled
 
 public class TwoDriverTeleOpJeff extends JeffBaseTeleOpMode {
 

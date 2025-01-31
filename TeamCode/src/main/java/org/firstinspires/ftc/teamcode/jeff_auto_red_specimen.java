@@ -30,179 +30,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
 
-@Config
 @Autonomous(name = "02_Auto (Red Specimen)", group = "Autonomous")
 public class jeff_auto_red_specimen extends LinearOpMode {
 
-    final int RED_ALLIANCE = 0;
-    final int BLUE_ALLIANCE = 1;
-
-    final int AllianceColor = RED_ALLIANCE;
-
-    final int LIMELIGHT_PIPELINE_AUTO_YELLOW_INDEX = 7;
-    final int LIMELIGHT_PIPELINE_AUTO_RED_INDEX = 8;
-    final int LIMELIGHT_PIPELINE_AUTO_BLUE_INDEX = 9;
-
-    final double ANGLE_TO_DISTANCE_FACTOR = 0.17;  // conversion for Limelight degrees to inches (very crude)
-
-    private double crosshair_x;
-    private double crosshair_y;
-    private double crosshair_angle;
-
-    public class LimeLightVision {
-        private Limelight3A limelight3A;
-
-        public LimeLightVision(HardwareMap hardwareMap) {
-            limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
-            limelight3A.start();
-        }
-
-        public void ObtainCrosshair() {
-
-            if (AllianceColor == RED_ALLIANCE) {
-                limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_AUTO_RED_INDEX);
-            } else if (AllianceColor == BLUE_ALLIANCE){
-                limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_AUTO_BLUE_INDEX);}
-
-            LLStatus status = limelight3A.getStatus();
-            telemetry.addData("Name", "%s",
-                    status.getName());
-            telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                    status.getTemp(), status.getCpu(),(int)status.getFps());
-            telemetry.addData("Pipeline", "Index: %d, Type: %s",
-                    status.getPipelineIndex(), status.getPipelineType());
-
-            LLResult limelight_result = limelight3A.getLatestResult();
-
-            if (limelight_result != null) {
-                // Access general information
-                Pose3D botpose = limelight_result.getBotpose();
-                double captureLatency = limelight_result.getCaptureLatency();
-                double targetingLatency = limelight_result.getTargetingLatency();
-                double parseLatency = limelight_result.getParseLatency();
-                telemetry.addData("LL Latency", captureLatency + targetingLatency);
-                telemetry.addData("Parse Latency", parseLatency);
-                telemetry.addData("PythonOutput", java.util.Arrays.toString(limelight_result.getPythonOutput()));
-
-                if (limelight_result.isValid()) {
-                    telemetry.addData("tx", limelight_result.getTx());
-                    telemetry.addData("txnc", limelight_result.getTxNC());
-                    telemetry.addData("ty", limelight_result.getTy());
-                    telemetry.addData("tync", limelight_result.getTyNC());
-                    telemetry.addData("Botpose", botpose.toString());
-
-                    // Access color results
-                    List<LLResultTypes.ColorResult> colorResults = limelight_result.getColorResults();
-                    LLResultTypes.ColorResult cr = colorResults.get(0);
-
-                    telemetry.addData("Color", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees());
-
-//                    crosshair_x = 8 * Math.tan(cr.getTargetXDegrees());
-                    crosshair_x = cr.getTargetXDegrees() * ANGLE_TO_DISTANCE_FACTOR;
-                    crosshair_y = cr.getTargetYDegrees() * ANGLE_TO_DISTANCE_FACTOR;
-                    crosshair_angle = 0;
-
-                    telemetry.addData("Crosshair", "X: %.2f, Y: %.2f", crosshair_x, crosshair_y);
-                }
-            } else {
-                telemetry.addData("Limelight", "No data available");            }
-
-            telemetry.update();
-            limelight3A.stop();
-        }
-   }
-
-    public class DriveBase {
-        public DriveBase(HardwareMap hardwareMap) {
-        }
-
-        public class AlignToTarget_X implements Action {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                Pose2d initialPose = new Pose2d(0, 0, 0);
-                MecanumDrive bot = new MecanumDrive(hardwareMap, initialPose);
-                LimeLightVision limelight = new LimeLightVision(hardwareMap);
-                double distance_to_target_x;
-                double distance_to_target_y;
-
-                limelight.ObtainCrosshair();
-                distance_to_target_x = 0;
-                distance_to_target_y = -crosshair_x;
-
-                TrajectoryActionBuilder trajDriveToTarget = bot.actionBuilder(initialPose)
-                        .strafeTo(new Vector2d(distance_to_target_x, distance_to_target_y));
-                Action actDriveToTarget = trajDriveToTarget.build();
-
-                Actions.runBlocking(
-                        new SequentialAction(
-                                actDriveToTarget));
-                return false;
-            }
-        }
-
-        public Action AlignToTarget_X() {
-            return new AlignToTarget_X();}
-
-        public class MoveBackToToInitialPose_X implements Action {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                Pose2d initialPose = new Pose2d(0, 0, 0);
-                MecanumDrive bot = new MecanumDrive(hardwareMap, initialPose);
-
-                double distance_to_target_x;
-                double distance_to_target_y;
-
-                distance_to_target_x = 0;
-                distance_to_target_y = crosshair_x;
-
-                TrajectoryActionBuilder trajDriveToTarget = bot.actionBuilder(initialPose)
-                        .strafeTo(new Vector2d(distance_to_target_x, distance_to_target_y));
-                Action actDriveToTarget = trajDriveToTarget.build();
-
-                Actions.runBlocking(
-                        new SequentialAction(
-                                actDriveToTarget));
-                return false;
-            }
-        }
-
-        public Action MoveBackToToInitialPose_X() {
-            return new MoveBackToToInitialPose_X();
-        }
-    }
-
-    public class FTCTelemetry {
-        double auto_starttime;
-        double total_duration;
-
-        public FTCTelemetry(HardwareMap hardwareMap) {
-        }
-
-        public class ResetTimer implements Action {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                auto_starttime = System.currentTimeMillis();
-                return false;
-            }
-        }
-
-        public Action ResetTimer() {
-            return new ResetTimer();
-        }
-
-        public class UpdateTotalDuration implements Action {
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                total_duration = (System.currentTimeMillis() - auto_starttime) / 1000;
-                packet.put("Total    Duration", total_duration);
-                return false;
-            }
-        }
-
-        public Action UpdateTotalDuration() {
-            return new UpdateTotalDuration();
-        }
-    }
+    final String allianceColor = "RED";  // Valid Values: RED or BLUE
+//    final int allianceColor = "BLUE";  // Valid Values: RED or BLUE
 
     @Override
     public void runOpMode() {
@@ -211,13 +43,12 @@ public class jeff_auto_red_specimen extends LinearOpMode {
         Bot_Slides slides = new Bot_Slides(hardwareMap);
         Bot_Bucket bucket = new Bot_Bucket(hardwareMap);
         Bot_Arm arm = new Bot_Arm(hardwareMap);
-        Bot_Elbow elbow = new Bot_Elbow(hardwareMap);
+        Bot_Wrist wrist = new Bot_Wrist(hardwareMap);
         Bot_Gripper gripper = new Bot_Gripper(hardwareMap);
         Bot_Flag flag = new Bot_Flag(hardwareMap);
         Bot_Headlight headlight = new Bot_Headlight(hardwareMap);
         Bot_IndicatorLight indicatorlight = new Bot_IndicatorLight(hardwareMap);
-        FTCTelemetry ftctelemetry = new FTCTelemetry(hardwareMap);
-        DriveBase drivebase = new DriveBase(hardwareMap);
+        Bot_Drivebase drivebase = new Bot_Drivebase(hardwareMap, allianceColor);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         TrajectoryActionBuilder trajDriveToSubmersible1 = drive.actionBuilder(initialPose)
@@ -259,9 +90,6 @@ public class jeff_auto_red_specimen extends LinearOpMode {
 
 
         while (!isStopRequested() && !opModeIsActive()) {
-//            telemetry.addData("x", drive.pose.position.x);
-//            telemetry.addData("y", drive.pose.position.y);
-//            telemetry.addData("heading (deg)", Math.toDegrees(drive.pose.heading.toDouble()));
             telemetry.update();
         }
 
@@ -286,21 +114,13 @@ public class jeff_auto_red_specimen extends LinearOpMode {
 
         Actions.runBlocking(
                 new SequentialAction(
-// This is for Limelight testing and determining the conversion factor.
-//                        slide.SlidesUpHigh(),
-//                        arm.ArmPrepareToCollect(),
-//                        gripper.GripperOut(),
-//                        drivebase.AlignToTarget_X()
-//                        gripper.GripperGrabInwards(),
-//                        drivebase.MoveBackToToInitialPose_X()
                         new ParallelAction(
-                                ftctelemetry.ResetTimer(),
                                 headlight.headlight_Off(),
                                 indicatorlight.TurnIndicatorLight_Off(),
                                 flag.FlagDown(),
-                                elbow.ElbowCollect(),
+                                wrist.WristCollect(),
                                 bucket.BucketDump(),
-                                gripper.GripperIn()
+                                gripper.GripperGrabInwards()
                         ),
                         new SleepAction(0.25),  // wait for the elbow to turn
                         new ParallelAction(
@@ -319,10 +139,10 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 headlight.headlight_On(),
                                 arm.ArmPrepareToCollect(),
                                 actDriveToSample1,
-                                elbow.ElbowCollect(),
+                                wrist.WristCollect(),
                                 gripper.GripperOut()
                         ),
-                        drivebase.AlignToTarget_X(),
+                        drivebase.AlignToAllianceElement_X(),
                         arm.ArmCollectSample(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
@@ -331,7 +151,7 @@ public class jeff_auto_red_specimen extends LinearOpMode {
 
                         // Drop Sample to Observation Zone
                         arm.ArmDropSampleToZone(),
-                        elbow.ElbowDeposit(),
+                        wrist.WristDeposit(),
                         new SleepAction(0.5),  // wait for the elbow to turn
                         gripper.GripperOut(),
                         new SleepAction(0.25),    // wait for sample to drop to zone
@@ -341,10 +161,10 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 headlight.headlight_On(),
                                 arm.ArmPrepareToCollect(),
                                 actDriveToSample2,
-                                elbow.ElbowCollect(),
+                                wrist.WristCollect(),
                                 gripper.GripperOut()
                         ),
-                        drivebase.AlignToTarget_X(),
+                        drivebase.AlignToAllianceElement_X(),
                         arm.ArmCollectSample(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
@@ -353,7 +173,7 @@ public class jeff_auto_red_specimen extends LinearOpMode {
 
                         // Drop Sample to Observation Zone
                         arm.ArmDropSampleToZone(),
-                        elbow.ElbowDeposit(),
+                        wrist.WristDeposit(),
                         new SleepAction(0.5),  // wait for the elbow to turn
                         gripper.GripperOut(),
                         new SleepAction(0.25),    // wait for sample to drop to zone
@@ -363,10 +183,10 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 headlight.headlight_On(),
                                 arm.ArmPrepareToCollect(),
                                 actDriveToSample3,
-                                elbow.ElbowCollect(),
+                                wrist.WristCollect(),
                                 gripper.GripperOut()
                         ),
-                        drivebase.AlignToTarget_X(),
+                        drivebase.AlignToAllianceElement_X(),
                         arm.ArmCollectSample(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
@@ -376,7 +196,7 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                         // Drop Sample to Observation Zone
                         actDriveToDropSample3,
                         arm.ArmDropSampleToZone(),
-                        elbow.ElbowDeposit(),
+                        wrist.WristDeposit(),
                         new SleepAction(0.5),  // wait for the elbow to turn
                         gripper.GripperOut(),
                         new SleepAction(0.25),    // wait for sample to drop to zone
@@ -386,10 +206,10 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 headlight.headlight_On(),
                                 actDriveToCollectSpecimen2,
                                 arm.ArmPrepareToCollect(),
-                                elbow.ElbowCollect(),
+                                wrist.WristCollect(),
                                 gripper.GripperOut()
                         ),
-                        drivebase.AlignToTarget_X(),
+                        drivebase.AlignToAllianceElement_X(),
                         arm.ArmCollectSpecimen(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
@@ -410,10 +230,10 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 headlight.headlight_On(),
                                 actDriveToCollectSpecimen3,
                                 arm.ArmPrepareToCollect(),
-                                elbow.ElbowCollect(),
+                                wrist.WristCollect(),
                                 gripper.GripperOut()
                         ),
-                        drivebase.AlignToTarget_X(),
+                        drivebase.AlignToAllianceElement_X(),
                         arm.ArmCollectSpecimen(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
@@ -429,63 +249,7 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 arm.ArmSpecimenScore()
                         ),
 
-                        new SleepAction(5),  //temporary
-
-
-//                        actDriveBackToScore1,
-//                        gripper.GripperOut(),
-
-//
-//                        new ParallelAction(
-//                                headlight.headlight_Off(),
-//                                indicatorlight.TurnIndicatorLight_Off()
-//                        ),
-//
-//                        // Score preloaded sample to high basket
-//                        new ParallelAction(
-//                                bucket.BucketCatch(),
-//                                slide.SlidesUpHigh(),
-//                                actDriveToHighBasket,
-//                                elbow.ElbowCollect()
-//                        ),
-//                        bucket.BucketDump(),
-//                        new SleepAction(0.4),
-//
-//                        // Drive to collect 1st sample from mat
-//                        new ParallelAction(
-//                                arm.ArmPrepareToCollect(),
-//                                indicatorlight.TurnIndicatorLight_Off(),
-//                                headlight.headlight_On(),
-//                                slide.SlidesDownCatch(),
-//                                actDriveToCollectSamplePosition1,
-//                                elbow.ElbowCollect(),
-//                                gripper.GripperOut(),
-//                                bucket.BucketCatch()
-//                        ),
-//                        drivebase.AlignToTarget_X(),
-//                        arm.ArmCollect(),
-//                        gripper.GripperGrabInwards(),
-//                        new SleepAction(0.2),
-//                        drivebase.MoveBackToToInitialPose_X(),
-//                        new ParallelAction(
-//                                actDriveToHighBasket2,
-//                                indicatorlight.TurnIndicatorLight_Green(),
-//                                headlight.headlight_Off(),
-//                                new SequentialAction(
-//                                        new ParallelAction(
-//                                                elbow.ElbowDeposit(),
-//                                                arm.ArmDeposit()
-//                                        ),
-//                                        gripper.GripperOut(),
-//                                        arm.ArmClearBucket(),
-//                                        slide.SlidesUpHigh()
-//                                )
-//                        ),
-//                        bucket.BucketDump(),
-//                        new SleepAction(0.4),
-//
-
-                        ftctelemetry.UpdateTotalDuration()
+                        new SleepAction(5)  //temporary
                 )
         );
     }

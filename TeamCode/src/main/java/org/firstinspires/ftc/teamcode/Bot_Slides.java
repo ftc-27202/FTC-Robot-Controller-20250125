@@ -32,7 +32,7 @@ import java.util.List;
 public final class Bot_Slides {
     final int SLIDE_GROUND = 0;
     final int SLIDE_CATCH = 500;
-    final int SLIDE_CLEAR_ARM = 900;  // 1350 in auto basket, but 900 in auto specimen
+    final int SLIDE_CLEAR_ARM = 900;
     final int SLIDE_HIGH = 2650;
     final double SLIDE_STALL_TIME = 2.0;
 
@@ -172,5 +172,34 @@ public final class Bot_Slides {
 
     public Action SlidesDownCatch() {
         return new SlidesDownCatch();
+    }
+
+    public class SlidesUpCatch implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                leftSlide.setPower(1.0);
+                rightSlide.setPower(1.0);
+                initialized = true;
+            }
+
+            double posLeftSlide = rightSlide.getCurrentPosition();
+            double posRightSlide = rightSlide.getCurrentPosition();
+            packet.put("posLeftSlide", posLeftSlide);
+            packet.put("posRightSlide", posRightSlide);
+            if (posRightSlide < (SLIDE_CATCH)) {
+                leftSlide.setTargetPosition(SLIDE_CATCH);
+                rightSlide.setTargetPosition(SLIDE_CATCH);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public Action SlidesUpCatch() {
+        return new SlidesUpCatch();
     }
 }

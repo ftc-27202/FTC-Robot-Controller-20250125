@@ -7,16 +7,17 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 @Config
 public final class Bot_Headlight {
     final double HEADLIGHT_OFF = 0;
     final double HEADLIGHT_ON = 0.5;
 
-    private Servo headlight;
+    private ServoImplEx headlight;
 
     public Bot_Headlight(HardwareMap hardwareMap) {
-        headlight = hardwareMap.get(Servo.class, "headlight");
+        headlight = hardwareMap.get(ServoImplEx.class, "headlight");
     }
 
     public class headlight_Off implements Action {
