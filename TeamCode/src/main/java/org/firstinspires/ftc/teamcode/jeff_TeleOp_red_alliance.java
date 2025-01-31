@@ -126,7 +126,7 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower * speed);
 
 
-            if (gamepad1.left_trigger > 0) {
+            if (gamepad1.left_trigger > 0 && gamepad1.right_trigger > 0) {
                 // prepare to collect (either sample of specimen), from starting position
                 runningActions.add(new ParallelAction(
                             flag.FlagDown(),
@@ -150,48 +150,48 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                         wrist.WristCollect(),
                         slides.SlidesDownGround(),
                         arm.ArmPrepareToCollect()));
+            } else if (gamepad1.left_bumper && gamepad1.a) {
+                // collect alliance sample: gripper out to in
+                runningActions.add(new ParallelAction(
+                        gripper.GripperOut(),
+                        new SequentialAction(
+                                drivebase.AlignToAllianceSample(),
+                                wrist.WristCollect(),
+                                arm.ArmCollectSample(),
+                                gripper.GripperGrabInwards(),
+                                new SleepAction(0.2),
+                                arm.ArmCollected())
+                ));
             } else if (gamepad1.a) {
-                // collect sample option 1: gripper out to in
-                runningActions.add(new SequentialAction(
-                        new ParallelAction(
-                                gripper.GripperOut(),
-                                new SequentialAction(
-                                        drivebase.AlignToNeutralSample_X(),
-                                        wrist.WristCollect(),
-                                        arm.ArmCollectSample(),
-                                        gripper.GripperGrabInwards(),
-                                        new SleepAction(0.2),
-                                        arm.ArmCollected())
-                        )
+                // collect neutral sample: gripper out to in
+                runningActions.add(new ParallelAction(
+                        gripper.GripperOut(),
+                        new SequentialAction(
+                                drivebase.AlignToNeutralSample(),
+                                wrist.WristCollect(),
+                                arm.ArmCollectSample(),
+                                gripper.GripperGrabInwards(),
+                                new SleepAction(0.2),
+                                arm.ArmCollected())
                 ));
             } else if (gamepad1.b) {
                 // collect specimen
-                runningActions.add(new SequentialAction(
-                        // use limelight???
-                        new ParallelAction(
-                                gripper.GripperOut(),
-                                wrist.WristCollect(),
-                                slides.SlidesDownGround(),
-                                new SequentialAction(
-                                        arm.ArmCollectSpecimen(),
-                                        gripper.GripperGrabInwards(),
-                                        new SleepAction(0.2),
-                                        arm.ArmCollected())
-                        )
+                runningActions.add(new ParallelAction(
+                            gripper.GripperOut(),
+                            new SequentialAction(
+                                    drivebase.AlignToSpecimen(),
+                                    wrist.WristCollect(),
+                                    arm.ArmCollectSpecimen(),
+                                    gripper.GripperGrabInwards(),
+                                    new SleepAction(0.2),
+                                    arm.ArmCollected())
                 ));
             } else if (gamepad1.y) {
-                // collect sample option 2: gripper halfway open
-                runningActions.add(new SequentialAction(
-                        // use limelight???
-                        new ParallelAction(
-                                gripper.GripperOpenHalfway(),
-                                new SequentialAction(
-                                        wrist.WristCollect(),
-                                        arm.ArmCollectSample(),
-                                        gripper.GripperGrabInwards(),
-                                        new SleepAction(0.2),
-                                        arm.ArmCollected())
-                        )
+                // arm down to shove
+                runningActions.add(new ParallelAction(
+                        gripper.GripperGrabInwards(),
+                        wrist.WristCollect(),
+                        arm.ArmCollectSample()
                 ));
             } else if (gamepad1.dpad_down) {
                 // deposit sample to bucket
@@ -223,36 +223,53 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                 ));
             }
 
-            //        // Changed to wait for both triggers
-            //        if (gamepad2.a && gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
-            //            leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            //            rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            //        }
-            //
-            //        if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
-            //            telemetry.addData("Target Position", leftSlide.getTargetPosition());
-            //            telemetry.addData("Actual Position", leftSlide.getCurrentPosition());
-            //            slideTargetPosition -= (int) (gamepad2.right_stick_y * 30.0);
-            //        }
-            //
-            //        // Added arm reset for league qualifier
-            //        if (gamepad2.b && gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
-            //            armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            //            armPosition = ARM_COLLAPSED_INTO_ROBOT;
-            //        }
-            //
-            //        // Added arm reset for league qualifier
-            //        if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
-            //            telemetry.addData("Arm Target Position", armMotor.getTargetPosition());
-            //            telemetry.addData("Arm Current Position", armMotor.getCurrentPosition());
-            //            armPosition -= gamepad2.left_stick_y * ARM_TICKS_PER_DEGREE * 5.0;
-            //        }
-            //        if (gamepad2.left_bumper){
-            //            flag.setPosition(FLAG_DOWN);
-            //        }else if (gamepad2.right_bumper){
-            //            flag.setPosition(FLAG_SCORE);
-            //        }
+            // Gamepad 2 Controls
+            if (gamepad2.left_bumper && gamepad2.a) {
+                // reset slides
+                runningActions.add(new ParallelAction(
+                        slides.ResetSlides(),
+                        arm.ArmReset()
+                ));
+            }
+            else if (gamepad2.left_bumper) {
+                // move slides, using the gamepad2.right_stick_y for desired adjustment
+                runningActions.add(new SequentialAction(
+                        slides.MoveSlides(-gamepad2.right_stick_y * 200)
+                ));
+            };
 
+            if (gamepad2.left_bumper) {
+                // move arm, using the gamepad2.left_stick_y for desired adjustment
+                runningActions.add(new SequentialAction(
+                        arm.MoveArm(gamepad2.left_stick_y * 5)
+                ));
+            }
+
+            if (gamepad2.left_bumper && gamepad2.y) {
+                // Flag Down
+                runningActions.add(new SequentialAction(
+                        flag.FlagDown()
+                ));
+            }
+            else if (gamepad2.y) {
+                // Raise Flag
+                runningActions.add(new SequentialAction(
+                        flag.FlagScore()
+                ));
+            };
+
+            if (gamepad2.left_bumper && gamepad2.x) {
+                runningActions.add(new ParallelAction(
+                        headlight.headlight_Off(),
+                        indicatorlight.TurnIndicatorLight_Off()
+                ));
+            }
+            else if (gamepad2.x) {
+                runningActions.add(new ParallelAction(
+                        headlight.headlight_On(),
+                        indicatorlight.TurnIndicatorLight_Green()
+                ));
+            }
             //        //slides not in position
             //        if (getRuntime() >= lastSlideActionTime + SLIDE_STALL_TIME) {
             //            final double leftSlideRemaining = Math.abs(leftSlide.getTargetPosition() - leftSlide.getCurrentPosition());
@@ -265,8 +282,6 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
             //                return;
             //            }
             //        }
-            //
-
             //        armPositionFudgeFactor = FUDGE_FACTOR * (gamepad1.left_trigger);
             //        armMotor.setTargetPosition((int) (armPosition + armPositionFudgeFactor));
             //        ((DcMotorEx) armMotor).setVelocity(2100);

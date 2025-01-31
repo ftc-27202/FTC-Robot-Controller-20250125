@@ -123,11 +123,11 @@ public class jeff_auto_basket extends LinearOpMode {
                                 gripper.GripperOut(),
                                 bucket.BucketCatch()
                         ),
-                        drivebase.AlignToNeutralSample_X(),
+                        drivebase.AlignToNeutralSample(),
                         arm.ArmCollectSample(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
-                        drivebase.MoveBackToToInitialPose_X(),
+                        drivebase.MoveBackToToInitialPose_ForSample(),
                         new ParallelAction(
                                 actDriveToHighBasket2,
                                 indicatorlight.TurnIndicatorLight_Green(),
@@ -159,11 +159,11 @@ public class jeff_auto_basket extends LinearOpMode {
                                 gripper.GripperOut(),
                                 bucket.BucketCatch()
                         ),
-                        drivebase.AlignToNeutralSample_X(),
+                        drivebase.AlignToNeutralSample(),
                         arm.ArmCollectSample(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
-                        drivebase.MoveBackToToInitialPose_X(),
+                        drivebase.MoveBackToToInitialPose_ForSample(),
                         new ParallelAction(
                                 actDriveToHighBasket3,
                                 indicatorlight.TurnIndicatorLight_Green(),
@@ -195,11 +195,11 @@ public class jeff_auto_basket extends LinearOpMode {
                                 gripper.GripperOut(),
                                 bucket.BucketCatch()
                         ),
-                        drivebase.AlignToNeutralSample_X(),
+                        drivebase.AlignToNeutralSample(),
                         arm.ArmCollectSample(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
-                        drivebase.MoveBackToToInitialPose_X(),
+                        drivebase.MoveBackToToInitialPose_ForSample(),
                         new ParallelAction(
                                 actDriveToHighBasket4,
                                 indicatorlight.TurnIndicatorLight_Green(),

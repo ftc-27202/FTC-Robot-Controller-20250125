@@ -22,7 +22,7 @@ public final class Bot_Arm {
     final double ARM_DEPOSIT = 88 * ARM_TICKS_PER_DEGREE;
     final double ARM_STRAIGHT_UP = 90 * ARM_TICKS_PER_DEGREE;
     final double ARM_CLEAR_BUCKET = 100 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SPECIMEN_BEFORE_SCORE = 85 * ARM_TICKS_PER_DEGREE;
+    final double ARM_SPECIMEN_BEFORE_SCORE = 80 * ARM_TICKS_PER_DEGREE;
     final double ARM_SPECIMEN_AFTER_SCORE = 115 * ARM_TICKS_PER_DEGREE;
     final double ARM_PREPARE_TO_COLLECT = 176 * ARM_TICKS_PER_DEGREE; // parallel to the ground
     final double ARM_COLLECTED = 176 * ARM_TICKS_PER_DEGREE; // parallel to the ground
@@ -30,6 +30,7 @@ public final class Bot_Arm {
     final double ARM_COLLECT_SAMPLE = 188 * ARM_TICKS_PER_DEGREE;
 
     private DcMotorEx armMotor;
+    private float desiredAdjustment = 0;
 
     public Bot_Arm(HardwareMap hardwareMap) {
         armMotor = hardwareMap.get(DcMotorEx.class, "arm");
@@ -338,6 +339,40 @@ public final class Bot_Arm {
 
     public Action ArmDropSampleToZone() {
         return new ArmDropSampleToZone();
+    }
+
+    public class ArmReset implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            return false;
+        }
+    }
+
+    public Action ArmReset() {
+        return new ArmReset();
+    }
+
+    public class MoveArm implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                armMotor.setPower(1.0);
+                initialized = true;
+            }
+
+            double posArm = armMotor.getCurrentPosition();
+            packet.put("armMotorPos", posArm / ARM_TICKS_PER_DEGREE);
+            armMotor.setTargetPosition((int) posArm + (int) Math.round(desiredAdjustment * ARM_TICKS_PER_DEGREE));
+            return false;
+        }
+    }
+
+    public Action MoveArm(float position) {
+        desiredAdjustment = position;
+        return new Bot_Arm.MoveArm();
     }
 
 }

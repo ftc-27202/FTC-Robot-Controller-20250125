@@ -28,7 +28,7 @@ public final class Bot_Drivebase {
         allianceColor = InputAllianceColor;
     }
 
-    public class AlignToNeutralSample_X implements Action {
+    public class AlignToNeutralSample implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             Pose2d initialPose = new Pose2d(0, 0, 0);
@@ -48,10 +48,32 @@ public final class Bot_Drivebase {
         }
     }
 
-    public Action AlignToNeutralSample_X() {
-        return new AlignToNeutralSample_X();}
+    public Action AlignToNeutralSample() {
+        return new AlignToNeutralSample();}
 
-    public class AlignToAllianceElement_X implements Action {
+    public class AlignToAllianceSample implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            Pose2d initialPose = new Pose2d(0, 0, 0);
+            MecanumDrive bot = new MecanumDrive(local_hardwareMap, initialPose);
+
+            crosshair = camera.ObtainCrosshair(allianceColor);
+            packet.put("crosshair.x", crosshair.x);
+            packet.put("crosshair.y", crosshair.y);
+
+            Actions.runBlocking(
+                    bot.actionBuilder(new Pose2d(0, 0, 0))
+                            .strafeTo(new Vector2d(crosshair.y, -crosshair.x))
+                            .build()
+            );
+
+            return false;
+        }
+    }
+
+    public Action AlignToAllianceSample() {
+        return new AlignToAllianceSample();}
+    public class AlignToSpecimen implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             Pose2d initialPose = new Pose2d(0, 0, 0);
@@ -64,7 +86,7 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(-crosshair.y, -crosshair.x))
+                            .strafeTo(new Vector2d(crosshair.y, -crosshair.x - 1))  // less 1 inch when picking up specimen, since Limelight is configure to get the top (unrotated)
 
                             .build()
             );
@@ -73,24 +95,42 @@ public final class Bot_Drivebase {
         }
     }
 
-    public Action AlignToAllianceElement_X() {
-        return new AlignToAllianceElement_X();}
+    public Action AlignToSpecimen() {
+        return new AlignToSpecimen();}
 
-    public class MoveBackToToInitialPose_X implements Action {
+    public class MoveBackToToInitialPose_ForSample implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             MecanumDrive bot = new MecanumDrive(local_hardwareMap, new Pose2d(0, 0, 0));
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(crosshair.y, crosshair.x))
+                            .strafeTo(new Vector2d(-crosshair.y, crosshair.x))
                             .build()
             );
             return false;
         }
     }
 
-    public Action MoveBackToToInitialPose_X() {
-        return new MoveBackToToInitialPose_X();
+    public Action MoveBackToToInitialPose_ForSample() {
+        return new MoveBackToToInitialPose_ForSample();
+    }
+
+    public class MoveBackToToInitialPose_ForSpecimen implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            MecanumDrive bot = new MecanumDrive(local_hardwareMap, new Pose2d(0, 0, 0));
+
+            Actions.runBlocking(
+                    bot.actionBuilder(new Pose2d(0, 0, 0))
+                            .strafeTo(new Vector2d(-crosshair.y, crosshair.x + 1))  // add 1 inch back
+                            .build()
+            );
+            return false;
+        }
+    }
+
+    public Action MoveBackToToInitialPose_ForSpecimen() {
+        return new MoveBackToToInitialPose_ForSpecimen();
     }
 }

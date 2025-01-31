@@ -98,7 +98,7 @@ public final class Bot_Camera {
 
 //                    crosshair_x = 8 * Math.tan(cr.getTargetXDegrees());
                 crosshair_x = cr.getTargetXDegrees() * ANGLE_TO_DISTANCE_FACTOR;
-                crosshair_y = cr.getTargetYDegrees() * ANGLE_TO_DISTANCE_FACTOR;
+                crosshair_y = cr.getTargetYDegrees() * ANGLE_TO_DISTANCE_FACTOR - 1;  // less 1 inch, since limelight's crosshair is set to Top (unrotated)
                 crosshair_angle = 0;
 
                 telemetry.addData("ANGLE_TO_DISTANCE_FACTOR", ANGLE_TO_DISTANCE_FACTOR);

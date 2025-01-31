@@ -39,6 +39,8 @@ public final class Bot_Slides {
     private DcMotorEx leftSlide;
     private DcMotorEx rightSlide;
 
+    private float desiredAdjustment = 0;
+
     public Bot_Slides(HardwareMap hardwareMap) {
         leftSlide = hardwareMap.get(DcMotorEx.class, "leftSlide");
         leftSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -69,7 +71,7 @@ public final class Bot_Slides {
                 initialized = true;
             }
 
-            double posLeftSlide = rightSlide.getCurrentPosition();
+            double posLeftSlide = leftSlide.getCurrentPosition();
             double posRightSlide = rightSlide.getCurrentPosition();
             packet.put("posLeftSlide", posLeftSlide);
             packet.put("posRightSlide", posRightSlide);
@@ -98,7 +100,7 @@ public final class Bot_Slides {
                 initialized = true;
             }
 
-            double posLeftSlide = rightSlide.getCurrentPosition();
+            double posLeftSlide = leftSlide.getCurrentPosition();
             double posRightSlide = rightSlide.getCurrentPosition();
             packet.put("posLeftSlide", posLeftSlide);
             packet.put("posRightSlide", posRightSlide);
@@ -127,7 +129,7 @@ public final class Bot_Slides {
                 initialized = true;
             }
 
-            double posLeftSlide = rightSlide.getCurrentPosition();
+            double posLeftSlide = leftSlide.getCurrentPosition();
             double posRightSlide = rightSlide.getCurrentPosition();
             packet.put("posLeftSlide", posLeftSlide);
             packet.put("posRightSlide", posRightSlide);
@@ -156,7 +158,7 @@ public final class Bot_Slides {
                 initialized = true;
             }
 
-            double posLeftSlide = rightSlide.getCurrentPosition();
+            double posLeftSlide = leftSlide.getCurrentPosition();
             double posRightSlide = rightSlide.getCurrentPosition();
             packet.put("posLeftSlide", posLeftSlide);
             packet.put("posRightSlide", posRightSlide);
@@ -185,7 +187,7 @@ public final class Bot_Slides {
                 initialized = true;
             }
 
-            double posLeftSlide = rightSlide.getCurrentPosition();
+            double posLeftSlide = leftSlide.getCurrentPosition();
             double posRightSlide = rightSlide.getCurrentPosition();
             packet.put("posLeftSlide", posLeftSlide);
             packet.put("posRightSlide", posRightSlide);
@@ -201,5 +203,44 @@ public final class Bot_Slides {
 
     public Action SlidesUpCatch() {
         return new SlidesUpCatch();
+    }
+
+    public class ResetSlides implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            return false;
+        }
+    }
+
+    public Action ResetSlides() {
+        return new ResetSlides();
+    }
+
+    public class MoveSlides implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                leftSlide.setPower(1.0);
+                rightSlide.setPower(1.0);
+                initialized = true;
+            }
+
+            double posLeftSlide = leftSlide.getCurrentPosition();
+            double posRightSlide = rightSlide.getCurrentPosition();
+            packet.put("posLeftSlide", posLeftSlide);
+            packet.put("posRightSlide", posRightSlide);
+            leftSlide.setTargetPosition((int) posLeftSlide + (int) Math.round(desiredAdjustment));
+            rightSlide.setTargetPosition((int) posRightSlide + (int) Math.round(desiredAdjustment));
+            return false;
+        }
+    }
+
+    public Action MoveSlides(float adjustment) {
+        desiredAdjustment = adjustment;
+        return new MoveSlides();
     }
 }

@@ -28,6 +28,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -36,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TeleOp(name = "98_Test_Vision", group = "Robot")
-//@Disabled
+@Disabled
 
 public class Test_Vision extends LinearOpMode {
     final String allianceColor = "RED";  // Valid Values: RED or BLUE
@@ -135,11 +136,11 @@ public class Test_Vision extends LinearOpMode {
                         bucket.BucketOff()));
             } else if (gamepad1.a) {
                 runningActions.add(new SequentialAction(
-                        drivebase.AlignToNeutralSample_X()
+                        drivebase.AlignToNeutralSample()
                 ));
             } else if (gamepad1.y) {
                 runningActions.add(new SequentialAction(
-                        drivebase.MoveBackToToInitialPose_X()
+                        drivebase.MoveBackToToInitialPose_ForSample()
                 ));
             }
 

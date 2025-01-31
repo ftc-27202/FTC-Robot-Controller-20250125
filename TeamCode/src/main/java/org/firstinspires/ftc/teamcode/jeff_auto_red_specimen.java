@@ -122,7 +122,6 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 bucket.BucketDump(),
                                 gripper.GripperGrabInwards()
                         ),
-                        new SleepAction(0.25),  // wait for the elbow to turn
                         new ParallelAction(
                                 actDriveToSubmersible1,
                                 new SequentialAction(
@@ -142,11 +141,11 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 wrist.WristCollect(),
                                 gripper.GripperOut()
                         ),
-                        drivebase.AlignToAllianceElement_X(),
+                        drivebase.AlignToAllianceSample(),
                         arm.ArmCollectSample(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
-                        drivebase.MoveBackToToInitialPose_X(),
+                        drivebase.MoveBackToToInitialPose_ForSpecimen(),
                         headlight.headlight_Off(),
 
                         // Drop Sample to Observation Zone
@@ -164,11 +163,11 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 wrist.WristCollect(),
                                 gripper.GripperOut()
                         ),
-                        drivebase.AlignToAllianceElement_X(),
+                        drivebase.AlignToAllianceSample(),
                         arm.ArmCollectSample(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
-                        drivebase.MoveBackToToInitialPose_X(),
+                        drivebase.MoveBackToToInitialPose_ForSpecimen(),
                         headlight.headlight_Off(),
 
                         // Drop Sample to Observation Zone
@@ -186,11 +185,11 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 wrist.WristCollect(),
                                 gripper.GripperOut()
                         ),
-                        drivebase.AlignToAllianceElement_X(),
+                        drivebase.AlignToAllianceSample(),
                         arm.ArmCollectSample(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
-                        drivebase.MoveBackToToInitialPose_X(),
+                        drivebase.MoveBackToToInitialPose_ForSpecimen(),
                         headlight.headlight_Off(),
 
                         // Drop Sample to Observation Zone
@@ -209,11 +208,11 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 wrist.WristCollect(),
                                 gripper.GripperOut()
                         ),
-                        drivebase.AlignToAllianceElement_X(),
+                        drivebase.AlignToSpecimen(),
                         arm.ArmCollectSpecimen(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
-                        drivebase.MoveBackToToInitialPose_X(),
+                        drivebase.MoveBackToToInitialPose_ForSpecimen(),
                         headlight.headlight_Off(),
 
                         new ParallelAction(
@@ -233,11 +232,11 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                                 wrist.WristCollect(),
                                 gripper.GripperOut()
                         ),
-                        drivebase.AlignToAllianceElement_X(),
+                        drivebase.AlignToSpecimen(),
                         arm.ArmCollectSpecimen(),
                         gripper.GripperGrabInwards(),
                         new SleepAction(0.2),
-                        drivebase.MoveBackToToInitialPose_X(),
+                        drivebase.MoveBackToToInitialPose_ForSpecimen(),
                         headlight.headlight_Off(),
 
                         new ParallelAction(
