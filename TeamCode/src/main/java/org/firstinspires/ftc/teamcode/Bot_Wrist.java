@@ -10,8 +10,8 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 @Config
 public final class Bot_Wrist {
-    final double WRIST_COLLECT = 0.33;
-    final double WRIST_DEPOSIT = 1.0;
+    final double WRIST_COLLECT = 0.92;
+    final double WRIST_DEPOSIT = 0.13;
 
     private ServoImplEx wrist;
 

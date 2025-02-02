@@ -29,7 +29,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import java.util.List;
 
-@Autonomous(name = "01_Auto (Basket)", group = "Autonomous")
+@Autonomous(name = "01 Basket Side", group = "Autonomous")
 public class jeff_auto_basket extends LinearOpMode {
     @Override
     public void runOpMode() {

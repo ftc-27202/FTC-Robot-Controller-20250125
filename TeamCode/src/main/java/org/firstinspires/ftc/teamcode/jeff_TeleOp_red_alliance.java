@@ -39,7 +39,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name = "01_TeleOp (Red Alliance)", group = "Robot")
+@TeleOp(name = "01 Red Alliance", group = "Robot")
 //@Disabled
 
 public class jeff_TeleOp_red_alliance extends LinearOpMode {
@@ -66,6 +66,11 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
         Bot_IndicatorLight indicatorlight = new Bot_IndicatorLight(hardwareMap);
         Bot_Drivebase drivebase = new Bot_Drivebase(hardwareMap, allianceColor);
 
+        double speed = 1.0;
+        double turn_speed = 1.0;
+        double max, axial, lateral, yaw;
+        double leftFrontPower, rightFrontPower, leftBackPower, rightBackPower;
+
         leftFrontDrive = hardwareMap.get(DcMotorEx.class, "leftFront");
         leftBackDrive = hardwareMap.get(DcMotorEx.class, "leftRear");
         rightFrontDrive = hardwareMap.get(DcMotorEx.class, "rightFront");
@@ -89,22 +94,17 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            //if left_trigger: speed = 0.6; else speed = 1.0
-            double speed = gamepad1.right_trigger > 0 ? 0.6 : 1.0;
-            double turn_speed = gamepad1.right_trigger > 0 ? 0.2 : 1.0;
-            double max;
-
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
-            double lateral = gamepad1.left_stick_x;
-            double yaw = gamepad1.right_stick_x * turn_speed;
+            axial = -gamepad1.left_stick_y;  // Note: pushing stick forward gives negative value
+            lateral = gamepad1.left_stick_x;
+            yaw = gamepad1.right_stick_x * turn_speed;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower = axial + lateral + yaw;
-            double rightFrontPower = axial - lateral - yaw;
-            double leftBackPower = axial - lateral + yaw;
-            double rightBackPower = axial + lateral - yaw;
+            leftFrontPower = axial + lateral + yaw;
+            rightFrontPower = axial - lateral - yaw;
+            leftBackPower = axial - lateral + yaw;
+            rightBackPower = axial + lateral - yaw;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -125,26 +125,35 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower * speed);
             rightBackDrive.setPower(rightBackPower * speed);
 
-
             if (gamepad1.left_trigger > 0 && gamepad1.right_trigger > 0) {
                 // prepare to collect (either sample of specimen), from starting position
-                runningActions.add(new ParallelAction(
-                            flag.FlagDown(),
-                            headlight.headlight_Off(),
-                            indicatorlight.TurnIndicatorLight_Off(),
-                            bucket.BucketDump(),
-                            gripper.GripperOut(),
+                runningActions.add(new SequentialAction(
+                            new ParallelAction(
+                                flag.FlagDown(),
+                                headlight.headlight_On(),
+                                indicatorlight.TurnIndicatorLight_Off(),
+                                bucket.BucketDump(),
+                                gripper.GripperOut()),
                             new SequentialAction(
                                 new ParallelAction(
                                     slides.SlidesClearArm(),
                                     new SequentialAction(
-                                    wrist.WristCollect(),
-                                    new SleepAction(1.0))),
-                                arm.ArmPrepareToCollect())));
+                                        wrist.WristCollect(),
+                                        new SleepAction(1.0)
+                                    )
+                                ),
+                                arm.ArmPrepareToCollect()),
+                                bucket.BucketOff(),
+                                slides.SlidesDownGround())
+                );
             } else if (gamepad1.x) {
                 // prepare to collect (either sample of specimen)
+                speed = 0.60;
+                turn_speed = 0.80;
                 runningActions.add(new ParallelAction(
                         flag.FlagDown(),
+                        indicatorlight.TurnIndicatorLight_Off(),
+                        headlight.headlight_On(),
                         bucket.BucketOff(),
                         gripper.GripperOut(),
                         wrist.WristCollect(),
@@ -152,8 +161,10 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                         arm.ArmPrepareToCollect()));
             } else if (gamepad1.left_bumper && gamepad1.a) {
                 // collect alliance sample: gripper out to in
+                speed = 1.0;
+                turn_speed = 1.0;
                 runningActions.add(new ParallelAction(
-                        gripper.GripperOut(),
+                        gripper.GripperOpenToCollect(),
                         new SequentialAction(
                                 drivebase.AlignToAllianceSample(),
                                 wrist.WristCollect(),
@@ -164,8 +175,11 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                 ));
             } else if (gamepad1.a) {
                 // collect neutral sample: gripper out to in
+                speed = 1.0;
+                turn_speed = 1.0;
                 runningActions.add(new ParallelAction(
-                        gripper.GripperOut(),
+                        gripper.GripperOpenToCollect(),
+                        headlight.headlight_On(),
                         new SequentialAction(
                                 drivebase.AlignToNeutralSample(),
                                 wrist.WristCollect(),
@@ -176,26 +190,39 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                 ));
             } else if (gamepad1.b) {
                 // collect specimen
+                speed = 1.0;
+                turn_speed = 1.0;
                 runningActions.add(new ParallelAction(
                             gripper.GripperOut(),
+                            headlight.headlight_On(),
                             new SequentialAction(
                                     drivebase.AlignToSpecimen(),
                                     wrist.WristCollect(),
                                     arm.ArmCollectSpecimen(),
                                     gripper.GripperGrabInwards(),
-                                    new SleepAction(0.2),
                                     arm.ArmCollected())
                 ));
             } else if (gamepad1.y) {
                 // arm down to shove
-                runningActions.add(new ParallelAction(
-                        gripper.GripperGrabInwards(),
+                speed = 0.60;
+                turn_speed = 0.80;
+                runningActions.add(new SequentialAction(
+                        headlight.headlight_Off(),
                         wrist.WristCollect(),
-                        arm.ArmCollectSample()
+                        gripper.GripperGrabInwards(),
+                        new SleepAction(0.2),
+                        gripper.GripperDisable(),
+                        arm.ArmShove(),
+                        gripper.GripperOut(),
+                        new SleepAction(0.5),
+                        arm.ArmCollected()
                 ));
             } else if (gamepad1.dpad_down) {
                 // deposit sample to bucket
+                speed = 1.0;
+                turn_speed = 1.0;
                 runningActions.add(new ParallelAction(
+                        headlight.headlight_Off(),
                         bucket.BucketCatch(),
                         wrist.WristDeposit(),
                         slides.SlidesUpCatch(),
@@ -206,15 +233,29 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                 ));
             } else if (gamepad1.dpad_up) {
                 // Prepare Sample to Score in High Basket
-                runningActions.add(new SequentialAction(
+                speed = 0.40;
+                turn_speed = 0.80;
+                runningActions.add(new ParallelAction(
+                        headlight.headlight_Off(),
+                        indicatorlight.TurnIndicatorLight_Green(),
+                        new SequentialAction(
                         arm.ArmClearBucket(),
                         slides.SlidesUpHigh()
-                ));
+                )));
             } else if (gamepad1.dpad_left) {
-                // Score Specimen
+                // Prepare to Score Specimen
                 runningActions.add(new ParallelAction(
                         slides.SlidesDownGround(),
                         arm.ArmUpSpecimenBeforeScore()
+                ));
+            } else if (gamepad1.dpad_right) {
+                // Score Specimen
+                runningActions.add(new SequentialAction(
+                        new ParallelAction(
+                            arm.ArmSpecimenAfterScore(),
+                            drivebase.MoveBackForSpecimen()),
+                        new SleepAction(0.5),
+                        gripper.GripperOut()
                 ));
             } else if (gamepad1.right_bumper) {
                 // Dump Bucket
@@ -269,7 +310,27 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                         headlight.headlight_On(),
                         indicatorlight.TurnIndicatorLight_Green()
                 ));
+            };
+
+            if (gamepad2.dpad_left) {
+                // Prepare to Ascend
+                runningActions.add(
+                        new ParallelAction(
+                            slides.SlidesUpCatch(),
+                            arm.ArmPrepareToAscend(),
+                            wrist.WristCollect(),
+                            bucket.BucketDump()));
             }
+            else if (gamepad2.dpad_right) {
+                // Ascend to Level 2
+                runningActions.add(
+                        new SequentialAction(
+                            arm.ArmCollapsedIntoRobot(),
+                            slides.SlidesDownGround()
+                            )
+                );
+            };
+
             //        //slides not in position
             //        if (getRuntime() >= lastSlideActionTime + SLIDE_STALL_TIME) {
             //            final double leftSlideRemaining = Math.abs(leftSlide.getTargetPosition() - leftSlide.getCurrentPosition());
@@ -291,8 +352,6 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
 //            if (armMotor.getTargetPosition() > ARM_SCORE_SPECIMEN && (leftSlide.getTargetPosition() > SLIDE_HALF || rightSlide.getTargetPosition() > SLIDE_HALF)) {
 //                slideTargetPosition = SLIDE_HALF;
 //            }
-
-//        Add code to prevent the bot from tipping over.
 
             // update running actions
             List<Action> newActions = new ArrayList<>();

@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -73,6 +74,7 @@ public final class Bot_Drivebase {
 
     public Action AlignToAllianceSample() {
         return new AlignToAllianceSample();}
+
     public class AlignToSpecimen implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
@@ -86,8 +88,7 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(crosshair.y, -crosshair.x - 1))  // less 1 inch when picking up specimen, since Limelight is configure to get the top (unrotated)
-
+                            .strafeTo(new Vector2d(crosshair.y, -(crosshair.x - 1.5)))  // less 1 inch when picking up specimen, since Limelight is configure to get the top (unrotated)
                             .build()
             );
 
@@ -123,7 +124,7 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(-crosshair.y, crosshair.x + 1))  // add 1 inch back
+                            .strafeTo(new Vector2d(-crosshair.y, crosshair.x + 1.5))  // add 1 inch back
                             .build()
             );
             return false;
@@ -133,4 +134,23 @@ public final class Bot_Drivebase {
     public Action MoveBackToToInitialPose_ForSpecimen() {
         return new MoveBackToToInitialPose_ForSpecimen();
     }
+
+    public class MoveBackForSpecimen implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            Pose2d initialPose = new Pose2d(0, 0, 0);
+            MecanumDrive bot = new MecanumDrive(local_hardwareMap, initialPose);
+
+            Actions.runBlocking(
+                    bot.actionBuilder(new Pose2d(0, 0, 0))
+                            .strafeTo(new Vector2d(0, -6))
+                            .build()
+            );
+
+            return false;
+        }
+    }
+
+    public Action MoveBackForSpecimen() {
+        return new MoveBackForSpecimen();}
 }

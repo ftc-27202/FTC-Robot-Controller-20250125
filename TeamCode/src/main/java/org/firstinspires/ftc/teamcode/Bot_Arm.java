@@ -22,12 +22,14 @@ public final class Bot_Arm {
     final double ARM_DEPOSIT = 88 * ARM_TICKS_PER_DEGREE;
     final double ARM_STRAIGHT_UP = 90 * ARM_TICKS_PER_DEGREE;
     final double ARM_CLEAR_BUCKET = 100 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SPECIMEN_BEFORE_SCORE = 80 * ARM_TICKS_PER_DEGREE;
+    final double ARM_PREPARE_TO_ASCEND = 100 * ARM_TICKS_PER_DEGREE;
+    final double ARM_SPECIMEN_BEFORE_SCORE = 70 * ARM_TICKS_PER_DEGREE;
     final double ARM_SPECIMEN_AFTER_SCORE = 115 * ARM_TICKS_PER_DEGREE;
-    final double ARM_PREPARE_TO_COLLECT = 176 * ARM_TICKS_PER_DEGREE; // parallel to the ground
-    final double ARM_COLLECTED = 176 * ARM_TICKS_PER_DEGREE; // parallel to the ground
+    final double ARM_PREPARE_TO_COLLECT = 175 * ARM_TICKS_PER_DEGREE; // almost parallel to the ground, above specimen's height
+    final double ARM_COLLECTED = ARM_PREPARE_TO_COLLECT;
     final double ARM_COLLECT_SPECIMEN = 185 * ARM_TICKS_PER_DEGREE;
-    final double ARM_COLLECT_SAMPLE = 188 * ARM_TICKS_PER_DEGREE;
+    final double ARM_SHOVE = 187 * ARM_TICKS_PER_DEGREE;
+    final double ARM_COLLECT_SAMPLE = 190 * ARM_TICKS_PER_DEGREE;
 
     private DcMotorEx armMotor;
     private float desiredAdjustment = 0;
@@ -90,13 +92,38 @@ public final class Bot_Arm {
         return new ArmCollected();
     }
 
+    public class ArmShove implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                armMotor.setPower(0.5);
+                initialized = true;
+            }
+
+            double pos = armMotor.getCurrentPosition();
+            packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
+            if (pos < ARM_SHOVE - 5) {  // 5 is the buffer to avoid delay
+                armMotor.setTargetPosition((int) ARM_SHOVE);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public Action ArmShove() {
+        return new ArmShove();
+    }
+
     public class ArmCollectSpecimen implements Action {
         private boolean initialized = false;
 
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
-                armMotor.setPower(0.50);
+                armMotor.setPower(0.30);
                 initialized = true;
             }
 
@@ -138,6 +165,31 @@ public final class Bot_Arm {
 
     public Action ArmDeposit() {
         return new ArmDeposit();
+    }
+
+    public class ArmPrepareToAscend implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                armMotor.setPower(1.0);
+                initialized = true;
+            }
+
+            double pos = armMotor.getCurrentPosition();
+            packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
+            if (pos > ARM_PREPARE_TO_ASCEND) {
+                armMotor.setTargetPosition((int) ARM_PREPARE_TO_ASCEND);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public Action ArmPrepareToAscend() {
+        return new ArmPrepareToAscend();
     }
 
     public class ArmClearBucket implements Action {
@@ -311,10 +363,9 @@ public final class Bot_Arm {
         }
     }
 
-    public Action ArmSpecimenScore() {
+    public Action ArmSpecimenAfterScore() {
         return new ArmSpecimenAfterScore();
     }
-
 
     public class ArmDropSampleToZone implements Action {
         private boolean initialized = false;

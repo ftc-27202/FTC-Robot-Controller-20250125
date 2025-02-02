@@ -30,7 +30,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
 
-@Autonomous(name = "02_Auto (Red Specimen)", group = "Autonomous")
+@Autonomous(name = "02 Red Specimen Side", group = "Autonomous")
 public class jeff_auto_red_specimen extends LinearOpMode {
 
     final String allianceColor = "RED";  // Valid Values: RED or BLUE
@@ -130,7 +130,7 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                         ),
                         new ParallelAction(
                                 actDriveBackToScoreSpecimen1,
-                                arm.ArmSpecimenScore()
+                                arm.ArmSpecimenAfterScore()
                         ),
 
                         // Drive to collect sample 1 from mat
@@ -221,7 +221,7 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                         ),
                         new ParallelAction(
                                 actDriveBackToScoreSpecimen2,
-                                arm.ArmSpecimenScore()
+                                arm.ArmSpecimenAfterScore()
                         ),
 
                         // Drive to collect specimen 3 from mat
@@ -245,7 +245,7 @@ public class jeff_auto_red_specimen extends LinearOpMode {
                         ),
                         new ParallelAction(
                                 actDriveBackToScoreSpecimen3,
-                                arm.ArmSpecimenScore()
+                                arm.ArmSpecimenAfterScore()
                         ),
 
                         new SleepAction(5)  //temporary

@@ -14,6 +14,7 @@ public final class Bot_Gripper {
     // For physical install, 0.5 = Gripper middle position
     final double GRIPPER_GRABBING_INWARDS = 0.25;
     final double GRIPPER_HALFWAY_OPEN = 0.60;
+    final double GRIPPER_COLLECT_OUT = 0.70;
     final double GRIPPER_OUT = 0.85;
 
     private ServoImplEx gripper;
@@ -51,8 +52,8 @@ public final class Bot_Gripper {
     public class GripperOpenHalfway implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
+            gripper.setPwmEnable();
             gripper.setPosition(GRIPPER_HALFWAY_OPEN);
-            gripper.setPwmDisable();
             return false;
         }
     }
@@ -61,4 +62,28 @@ public final class Bot_Gripper {
         return new GripperOpenHalfway();
     }
 
+    public class GripperOpenToCollect implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            gripper.setPwmEnable();
+            gripper.setPosition(GRIPPER_COLLECT_OUT);
+            return false;
+        }
+    }
+
+    public Action GripperOpenToCollect() {
+        return new GripperOpenToCollect();
+    }
+
+    public class GripperDisable implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            gripper.setPwmDisable();
+            return false;
+        }
+    }
+
+    public Action GripperDisable() {
+        return new GripperDisable();
+    }
 }
