@@ -22,6 +22,7 @@ public final class Bot_Drivebase {
     private Vector2d crosshair = new Vector2d(0,0);
     private HardwareMap local_hardwareMap;
     private String allianceColor;
+    private String orientation;
 
     public Bot_Drivebase(HardwareMap hardwareMap, String InputAllianceColor) {
         local_hardwareMap = hardwareMap;
@@ -35,7 +36,7 @@ public final class Bot_Drivebase {
             Pose2d initialPose = new Pose2d(0, 0, 0);
             MecanumDrive bot = new MecanumDrive(local_hardwareMap, initialPose);
 
-            crosshair = camera.ObtainCrosshair("YELLOW");
+            crosshair = camera.ObtainCrosshair("YELLOW", orientation);
             packet.put("crosshair.x", crosshair.x);
             packet.put("crosshair.y", crosshair.y);
 
@@ -49,7 +50,8 @@ public final class Bot_Drivebase {
         }
     }
 
-    public Action AlignToNeutralSample() {
+    public Action AlignToNeutralSample(String inOrientation) {
+        orientation = inOrientation;
         return new AlignToNeutralSample();}
 
     public class AlignToAllianceSample implements Action {
@@ -58,7 +60,7 @@ public final class Bot_Drivebase {
             Pose2d initialPose = new Pose2d(0, 0, 0);
             MecanumDrive bot = new MecanumDrive(local_hardwareMap, initialPose);
 
-            crosshair = camera.ObtainCrosshair(allianceColor);
+            crosshair = camera.ObtainCrosshair(allianceColor, orientation);
             packet.put("crosshair.x", crosshair.x);
             packet.put("crosshair.y", crosshair.y);
 
@@ -72,7 +74,8 @@ public final class Bot_Drivebase {
         }
     }
 
-    public Action AlignToAllianceSample() {
+    public Action AlignToAllianceSample(String inOrientation) {
+        orientation = inOrientation;
         return new AlignToAllianceSample();}
 
     public class AlignToSpecimen implements Action {
@@ -81,14 +84,14 @@ public final class Bot_Drivebase {
             Pose2d initialPose = new Pose2d(0, 0, 0);
             MecanumDrive bot = new MecanumDrive(local_hardwareMap, initialPose);
 
-            crosshair = camera.ObtainCrosshair(allianceColor);
+            crosshair = camera.ObtainCrosshair(allianceColor, "VERTICAL");
             packet.put("color", allianceColor);
             packet.put("crosshair.x", crosshair.x);
             packet.put("crosshair.y", crosshair.y);
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(crosshair.y, -(crosshair.x - 1.5)))  // less 1 inch when picking up specimen, since Limelight is configure to get the top (unrotated)
+                            .strafeTo(new Vector2d(crosshair.y, -(crosshair.x - 1)))
                             .build()
             );
 
@@ -124,7 +127,7 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(-crosshair.y, crosshair.x + 1.5))  // add 1 inch back
+                            .strafeTo(new Vector2d(-crosshair.y, crosshair.x + 1))
                             .build()
             );
             return false;
@@ -143,7 +146,7 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(0, -6))
+                            .strafeTo(new Vector2d(-6, 0))
                             .build()
             );
 

@@ -27,9 +27,12 @@ import java.util.List;
 
 @Config
 public final class Bot_Camera {
-    final int LIMELIGHT_PIPELINE_AUTO_YELLOW_INDEX = 7;
-    final int LIMELIGHT_PIPELINE_AUTO_RED_INDEX = 8;
-    final int LIMELIGHT_PIPELINE_AUTO_BLUE_INDEX = 9;
+    final int LIMELIGHT_PIPELINE_YELLOW_HORIZONTAL_INDEX = 4;
+    final int LIMELIGHT_PIPELINE_RED_HORIZONTAL_INDEX = 5;
+    final int LIMELIGHT_PIPELINE_BLUE_HORIZONTAL_INDEX = 6;
+    final int LIMELIGHT_PIPELINE_YELLOW_VERTICAL_INDEX = 7;
+    final int LIMELIGHT_PIPELINE_RED_VERTICAL_INDEX = 8;
+    final int LIMELIGHT_PIPELINE_BLUE_VERTICAL_INDEX = 9;
 
     final double ANGLE_TO_DISTANCE_FACTOR = 0.17;  // conversion for Limelight degrees to inches (very crude)
 
@@ -37,29 +40,36 @@ public final class Bot_Camera {
     double crosshair_y;
     double crosshair_angle;
 
-    private Limelight3A limelight3A;
+    private Limelight3A limelight3A;  // physically installed as upside down
 
     public Bot_Camera(HardwareMap hardwareMap) {
         limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
     }
 
-    public Vector2d ObtainCrosshair(String color) {
+    public Vector2d ObtainCrosshair(String color, String orientation) {
         Telemetry telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry());
         Vector2d crosshair = new Vector2d(0, 0);
 
         limelight3A.start();
 
-        switch (color) {
-            case "YELLOW":
-                limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_AUTO_YELLOW_INDEX);
-                break;
-            case "RED":
-                limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_AUTO_RED_INDEX);
-                break;
-            case "BLUE":
-                limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_AUTO_BLUE_INDEX);
-                break;
+        if (color.equals("YELLOW") && orientation.equals("VERTICAL")) {
+            limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_YELLOW_VERTICAL_INDEX);
         }
+        else if (color.equals("YELLOW") && orientation.equals("HORIZONTAL")) {
+            limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_YELLOW_HORIZONTAL_INDEX);
+        }
+        else if (color.equals("RED") && orientation.equals("VERTICAL")) {
+            limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_RED_VERTICAL_INDEX);
+        }
+        else if (color.equals("RED") && orientation.equals("HORIZONTAL")) {
+            limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_RED_HORIZONTAL_INDEX);
+        }
+        else if (color.equals("BLUE") && orientation.equals("VERTICAL")) {
+            limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_BLUE_VERTICAL_INDEX);
+        }
+        else if (color.equals("BLUE") && orientation.equals("HORIZONTAL")) {
+            limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_BLUE_HORIZONTAL_INDEX);
+        };
 
         LLStatus status = limelight3A.getStatus();
         telemetry.addData("Name", "%s",
@@ -97,8 +107,8 @@ public final class Bot_Camera {
                 telemetry.addData("Color (degrees)", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees());
 
 //                    crosshair_x = 8 * Math.tan(cr.getTargetXDegrees());
-                crosshair_x = cr.getTargetXDegrees() * ANGLE_TO_DISTANCE_FACTOR;
-                crosshair_y = cr.getTargetYDegrees() * ANGLE_TO_DISTANCE_FACTOR - 1;  // less 1 inch, since limelight's crosshair is set to Top (unrotated)
+                crosshair_x = (cr.getTargetXDegrees() * -1) * ANGLE_TO_DISTANCE_FACTOR ;  // multiply by negative 1 since the camera is upside down
+                crosshair_y = (cr.getTargetYDegrees() * -1) * ANGLE_TO_DISTANCE_FACTOR - 1;  // less 1 inch, since limelight's crosshair is set to Bottom (unrotated)
                 crosshair_angle = 0;
 
                 telemetry.addData("ANGLE_TO_DISTANCE_FACTOR", ANGLE_TO_DISTANCE_FACTOR);

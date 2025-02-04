@@ -22,7 +22,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import androidx.annotation.NonNull;
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
@@ -30,22 +30,13 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.acmerobotics.dashboard.FtcDashboard;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@TeleOp(name = "01 Red Alliance", group = "Robot")
-//@Disabled
-
-public class jeff_TeleOp_red_alliance extends LinearOpMode {
-    final String allianceColor = "RED";  // Valid Values: RED or BLUE
-    //    final int AllianceColor = "BLUE";  // Valid Values: RED or BLUE
-
+public abstract class jeff_teleop_alliance_base extends LinearOpMode {
+    private String allianceColor;
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
     private DcMotorEx leftFrontDrive = null;
@@ -53,6 +44,9 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
     private DcMotorEx rightFrontDrive = null;
     private DcMotorEx rightBackDrive = null;
 
+    public void setAllianceColor(String inAllianceColor) {
+        allianceColor = inAllianceColor;
+    }
     @Override
     public void runOpMode() {
         TelemetryPacket packet = new TelemetryPacket();
@@ -131,7 +125,7 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                             new ParallelAction(
                                 flag.FlagDown(),
                                 headlight.headlight_On(),
-                                indicatorlight.TurnIndicatorLight_Off(),
+                                indicatorlight.TurnIndicatorLight_AllianceColor(allianceColor),
                                 bucket.BucketDump(),
                                 gripper.GripperOut()),
                             new SequentialAction(
@@ -139,11 +133,13 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                                     slides.SlidesClearArm(),
                                     new SequentialAction(
                                         wrist.WristCollect(),
-                                        new SleepAction(1.0)
+                                        new SleepAction(1.5)
                                     )
                                 ),
                                 arm.ArmPrepareToCollect()),
-                                bucket.BucketOff(),
+                                new SequentialAction(
+                                        bucket.BucketCatch(),
+                                        bucket.BucketOff()),
                                 slides.SlidesDownGround())
                 );
             } else if (gamepad1.x) {
@@ -152,9 +148,10 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                 turn_speed = 0.80;
                 runningActions.add(new ParallelAction(
                         flag.FlagDown(),
-                        indicatorlight.TurnIndicatorLight_Off(),
                         headlight.headlight_On(),
-                        bucket.BucketOff(),
+                        new SequentialAction(
+                                bucket.BucketCatch(),
+                                bucket.BucketOff()),
                         gripper.GripperOut(),
                         wrist.WristCollect(),
                         slides.SlidesDownGround(),
@@ -164,12 +161,12 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                 speed = 1.0;
                 turn_speed = 1.0;
                 runningActions.add(new ParallelAction(
-                        gripper.GripperOpenToCollect(),
+                        gripper.GripperOut(),
                         new SequentialAction(
-                                drivebase.AlignToAllianceSample(),
+                                drivebase.AlignToAllianceSample("VERTICAL"),
                                 wrist.WristCollect(),
                                 arm.ArmCollectSample(),
-                                gripper.GripperGrabInwards(),
+                                gripper.GripperIn(),
                                 new SleepAction(0.2),
                                 arm.ArmCollected())
                 ));
@@ -178,13 +175,13 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                 speed = 1.0;
                 turn_speed = 1.0;
                 runningActions.add(new ParallelAction(
-                        gripper.GripperOpenToCollect(),
+                        gripper.GripperOut(),
                         headlight.headlight_On(),
                         new SequentialAction(
-                                drivebase.AlignToNeutralSample(),
+                                drivebase.AlignToNeutralSample("VERTICAL"),
                                 wrist.WristCollect(),
                                 arm.ArmCollectSample(),
-                                gripper.GripperGrabInwards(),
+                                gripper.GripperIn(),
                                 new SleepAction(0.2),
                                 arm.ArmCollected())
                 ));
@@ -199,23 +196,41 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                                     drivebase.AlignToSpecimen(),
                                     wrist.WristCollect(),
                                     arm.ArmCollectSpecimen(),
-                                    gripper.GripperGrabInwards(),
+                                    gripper.GripperIn(),
+                                    new SleepAction(0.2),
                                     arm.ArmCollected())
                 ));
-            } else if (gamepad1.y) {
-                // arm down to shove
-                speed = 0.60;
-                turn_speed = 0.80;
-                runningActions.add(new SequentialAction(
-                        headlight.headlight_Off(),
-                        wrist.WristCollect(),
-                        gripper.GripperGrabInwards(),
+            } else if (gamepad1.left_bumper && gamepad1.y) {
+                // collect alliance sample: gripper in to out
+                speed = 1.0;
+                turn_speed = 1.0;
+                runningActions.add(new ParallelAction(
+                        gripper.GripperIn(),
                         new SleepAction(0.2),
-                        gripper.GripperDisable(),
-                        arm.ArmShove(),
-                        gripper.GripperOut(),
-                        new SleepAction(0.5),
-                        arm.ArmCollected()
+                        headlight.headlight_On(),
+                        new SequentialAction(
+                                drivebase.AlignToAllianceSample("HORIZONTAL"),
+                                wrist.WristCollect(),
+                                arm.ArmCollectSample(),
+                                gripper.GripperOut(),
+                                new SleepAction(0.2),
+                                arm.ArmCollected())
+                ));
+            } else if (gamepad1.y) {
+                // collect neutral sample: gripper in to out
+                speed = 1.0;
+                turn_speed = 1.0;
+                runningActions.add(new ParallelAction(
+                        gripper.GripperIn(),
+                        new SleepAction(0.2),
+                        headlight.headlight_On(),
+                        new SequentialAction(
+                                drivebase.AlignToNeutralSample("HORIZONTAL"),
+                                wrist.WristCollect(),
+                                arm.ArmCollectSample(),
+                                gripper.GripperOut(),
+                                new SleepAction(0.2),
+                                arm.ArmCollected())
                 ));
             } else if (gamepad1.dpad_down) {
                 // deposit sample to bucket
@@ -228,7 +243,9 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                         slides.SlidesUpCatch(),
                         new SequentialAction(
                             arm.ArmDeposit(),
-                            gripper.GripperOut()
+                            gripper.GripperOut(),
+                            new SleepAction(0.2),
+                            gripper.GripperIn()
                         )
                 ));
             } else if (gamepad1.dpad_up) {
@@ -237,7 +254,6 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                 turn_speed = 0.80;
                 runningActions.add(new ParallelAction(
                         headlight.headlight_Off(),
-                        indicatorlight.TurnIndicatorLight_Green(),
                         new SequentialAction(
                         arm.ArmClearBucket(),
                         slides.SlidesUpHigh()
@@ -254,7 +270,7 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                         new ParallelAction(
                             arm.ArmSpecimenAfterScore(),
                             drivebase.MoveBackForSpecimen()),
-                        new SleepAction(0.5),
+                        new SleepAction(0.2),
                         gripper.GripperOut()
                 ));
             } else if (gamepad1.right_bumper) {
@@ -308,7 +324,7 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
             else if (gamepad2.x) {
                 runningActions.add(new ParallelAction(
                         headlight.headlight_On(),
-                        indicatorlight.TurnIndicatorLight_Green()
+                        indicatorlight.TurnIndicatorLight_AllianceColor(allianceColor)
                 ));
             };
 
@@ -316,22 +332,43 @@ public class jeff_TeleOp_red_alliance extends LinearOpMode {
                 // Prepare to Ascend
                 runningActions.add(
                         new ParallelAction(
-                            slides.SlidesUpCatch(),
+                            slides.SlidesUpAscend(),
                             arm.ArmPrepareToAscend(),
-                            wrist.WristCollect(),
+                            wrist.WristDeposit(),
                             bucket.BucketDump()));
             }
             else if (gamepad2.dpad_right) {
                 // Ascend to Level 2
                 runningActions.add(
-                        new SequentialAction(
-                            arm.ArmCollapsedIntoRobot(),
-                            slides.SlidesDownGround()
-                            )
+                            new SequentialAction(
+                                bucket.BucketCatch(),
+                                bucket.BucketOff(),
+                                arm.ArmCollapsedIntoRobot(),
+                                slides.SlidesDownGround()
+                        )
                 );
             };
 
-            //        //slides not in position
+            if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
+                // return to from starting position
+                runningActions.add(new SequentialAction(
+                        new ParallelAction(
+                                flag.FlagDown(),
+                                headlight.headlight_Off(),
+                                bucket.BucketDump(),
+                                gripper.GripperIn()),
+                        new SequentialAction(
+                                new ParallelAction(
+                                        slides.SlidesClearArm(),
+                                        wrist.WristCollect()
+                                ),
+                                arm.ArmCollapsedIntoRobot()),
+                        bucket.BucketCatch(),
+                        bucket.BucketOff(),
+                        slides.SlidesDownGround())
+                );
+            }
+                //        //slides not in position
             //        if (getRuntime() >= lastSlideActionTime + SLIDE_STALL_TIME) {
             //            final double leftSlideRemaining = Math.abs(leftSlide.getTargetPosition() - leftSlide.getCurrentPosition());
             //            final double rightSlideRemaining = Math.abs(rightSlide.getTargetPosition() - rightSlide.getCurrentPosition());

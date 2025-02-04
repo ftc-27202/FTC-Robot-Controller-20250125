@@ -36,8 +36,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import java.util.ArrayList;
 import java.util.List;
 
+//@Disabled
 @TeleOp(name = "98_Test_Vision", group = "Robot")
-@Disabled
 
 public class Test_Vision extends LinearOpMode {
     final String allianceColor = "RED";  // Valid Values: RED or BLUE
@@ -132,15 +132,28 @@ public class Test_Vision extends LinearOpMode {
                                         slides.SlidesClearArm(),
                                         arm.ArmPrepareToCollect())
                         ),
+                        headlight.headlight_On(),
                         slides.SlidesDownGround(),
                         bucket.BucketOff()));
+            } else if (gamepad1.left_bumper && gamepad1.a) {
+                runningActions.add(new SequentialAction(
+                        drivebase.AlignToAllianceSample("VERTICAL")
+                ));
             } else if (gamepad1.a) {
                 runningActions.add(new SequentialAction(
-                        drivebase.AlignToNeutralSample()
+                        drivebase.AlignToNeutralSample("VERTICAL")
+                ));
+            } else if (gamepad1.left_bumper && gamepad1.y) {
+                runningActions.add(new SequentialAction(
+                        drivebase.AlignToAllianceSample("HORIZONTAL")
                 ));
             } else if (gamepad1.y) {
                 runningActions.add(new SequentialAction(
-                        drivebase.MoveBackToToInitialPose_ForSample()
+                        drivebase.AlignToNeutralSample("HORIZONTAL")
+                ));
+            } else if (gamepad1.b) {
+                runningActions.add(new SequentialAction(
+                        drivebase.AlignToSpecimen()
                 ));
             }
 

@@ -33,6 +33,7 @@ public final class Bot_Slides {
     final int SLIDE_GROUND = 0;
     final int SLIDE_CATCH = 500;
     final int SLIDE_CLEAR_ARM = 900;
+    final int SLIDE_ASCEND = 950;
     final int SLIDE_HIGH = 2650;
     final double SLIDE_STALL_TIME = 2.0;
 
@@ -95,8 +96,8 @@ public final class Bot_Slides {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
-                leftSlide.setPower(1.0);
-                rightSlide.setPower(1.0);
+                leftSlide.setPower(0.80);
+                rightSlide.setPower(0.80);
                 initialized = true;
             }
 
@@ -153,8 +154,8 @@ public final class Bot_Slides {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
-                leftSlide.setPower(1.0);
-                rightSlide.setPower(1.0);
+                leftSlide.setPower(0.80);
+                rightSlide.setPower(0.80);
                 initialized = true;
             }
 
@@ -203,6 +204,35 @@ public final class Bot_Slides {
 
     public Action SlidesUpCatch() {
         return new SlidesUpCatch();
+    }
+
+    public class SlidesUpAscend implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                leftSlide.setPower(1.0);
+                rightSlide.setPower(1.0);
+                initialized = true;
+            }
+
+            double posLeftSlide = leftSlide.getCurrentPosition();
+            double posRightSlide = rightSlide.getCurrentPosition();
+            packet.put("posLeftSlide", posLeftSlide);
+            packet.put("posRightSlide", posRightSlide);
+            if (posRightSlide < SLIDE_ASCEND) {
+                leftSlide.setTargetPosition(SLIDE_ASCEND);
+                rightSlide.setTargetPosition(SLIDE_ASCEND);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public Action SlidesUpAscend() {
+        return new SlidesUpAscend();
     }
 
     public class ResetSlides implements Action {

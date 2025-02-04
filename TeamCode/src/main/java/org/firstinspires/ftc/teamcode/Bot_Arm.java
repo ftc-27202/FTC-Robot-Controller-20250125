@@ -25,11 +25,11 @@ public final class Bot_Arm {
     final double ARM_PREPARE_TO_ASCEND = 100 * ARM_TICKS_PER_DEGREE;
     final double ARM_SPECIMEN_BEFORE_SCORE = 70 * ARM_TICKS_PER_DEGREE;
     final double ARM_SPECIMEN_AFTER_SCORE = 115 * ARM_TICKS_PER_DEGREE;
-    final double ARM_PREPARE_TO_COLLECT = 175 * ARM_TICKS_PER_DEGREE; // almost parallel to the ground, above specimen's height
+    final double ARM_PREPARE_TO_COLLECT = 173 * ARM_TICKS_PER_DEGREE; // almost parallel to the ground, just above specimen's height
     final double ARM_COLLECTED = ARM_PREPARE_TO_COLLECT;
-    final double ARM_COLLECT_SPECIMEN = 185 * ARM_TICKS_PER_DEGREE;
+    final double ARM_COLLECT_SPECIMEN = 184 * ARM_TICKS_PER_DEGREE;
     final double ARM_SHOVE = 187 * ARM_TICKS_PER_DEGREE;
-    final double ARM_COLLECT_SAMPLE = 190 * ARM_TICKS_PER_DEGREE;
+    final double ARM_COLLECT_SAMPLE = 187 * ARM_TICKS_PER_DEGREE;
 
     private DcMotorEx armMotor;
     private float desiredAdjustment = 0;
@@ -104,7 +104,7 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos < ARM_SHOVE - 5) {  // 5 is the buffer to avoid delay
+            if (pos < ARM_SHOVE - 3) {  // 3 is the buffer to avoid delay
                 armMotor.setTargetPosition((int) ARM_SHOVE);
                 return true;
             } else {

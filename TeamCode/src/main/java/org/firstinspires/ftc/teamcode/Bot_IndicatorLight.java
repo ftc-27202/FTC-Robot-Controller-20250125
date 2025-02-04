@@ -13,7 +13,10 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 public final class Bot_IndicatorLight {
     final double INDICATOR_LIGHT_OFF = 0;
     final double INDICATOR_LIGHT_GREEN = 0.5;
+    final double INDICATOR_LIGHT_RED = 0.279;
+    final double INDICATOR_LIGHT_BLUE = 0.611;
 
+    private String desiredColor;
 
     private ServoImplEx indicatorlight;
 
@@ -45,4 +48,21 @@ public final class Bot_IndicatorLight {
         return new TurnIndicatorLight_Green();
     }
 
+    public class TurnIndicatorLight_AllianceColor implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (desiredColor.equals("RED")) {
+                indicatorlight.setPosition(INDICATOR_LIGHT_RED);
+            }
+            else if (desiredColor.equals("BLUE")) {
+                indicatorlight.setPosition(INDICATOR_LIGHT_BLUE);
+            }
+            return false;
+        }
+    }
+
+    public Action TurnIndicatorLight_AllianceColor(String color) {
+        desiredColor = color;
+        return new TurnIndicatorLight_AllianceColor();
+    }
 }

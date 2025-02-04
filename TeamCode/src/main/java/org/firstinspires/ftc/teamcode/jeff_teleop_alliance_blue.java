@@ -27,56 +27,23 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@TeleOp(name = "02 Blue Alliance (TeleOp)", group = "Robot")
 //@Disabled
-@TeleOp(name = "98_Test Gripper", group = "Robot")
 
-public class Test_Gripper extends LinearOpMode {
-    final double GRIPPER_GRABBING_INWARDS = 0.35;
-    final double GRIPPER_HALFWAY_OPEN = 0.50;
-    final double GRIPPER_COLLECT_OUT = 0.65;
-    final double GRIPPER_OUT = 0.65;
-
-    private FtcDashboard dash = FtcDashboard.getInstance();
-    private List<Action> runningActions = new ArrayList<>();
-    private ServoImplEx gripper;
+public class jeff_teleop_alliance_blue extends jeff_teleop_alliance_base {
 
     @Override
     public void runOpMode() {
-        gripper = hardwareMap.get(ServoImplEx.class, "gripper");
-        TelemetryPacket packet = new TelemetryPacket();
-
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
-
-        waitForStart();
-
-        if (isStopRequested()) return;
-
-        while (opModeIsActive()) {
-            if (gamepad1.a) {
-                gripper.setPosition(GRIPPER_GRABBING_INWARDS);
-            }
-            else if (gamepad1.b) {
-                gripper.setPosition(GRIPPER_HALFWAY_OPEN);
-            }
-            else if (gamepad1.x) {
-                gripper.setPosition(GRIPPER_OUT);
-            }
-            else if (gamepad1.left_bumper) {
-                gripper.setPosition(-gamepad1.left_stick_y);
-            }
-
-            telemetry.addData("-gamepad1.left_stick_y", -gamepad1.left_stick_y);
-            telemetry.addData("gripper.getPosition", gripper.getPosition());
-            telemetry.update();
-        }
+        super.setAllianceColor("BLUE");
+        super.runOpMode();
     }
+
 }

@@ -12,10 +12,9 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 @Config
 public final class Bot_Gripper {
     // For physical install, 0.5 = Gripper middle position
-    final double GRIPPER_GRABBING_INWARDS = 0.25;
-    final double GRIPPER_HALFWAY_OPEN = 0.60;
-    final double GRIPPER_COLLECT_OUT = 0.70;
-    final double GRIPPER_OUT = 0.85;
+    final double GRIPPER_IN = 0.27;
+    final double GRIPPER_HALFWAY_OPEN = 0.50;
+    final double GRIPPER_OUT = 0.70;
 
     private ServoImplEx gripper;
 
@@ -23,24 +22,24 @@ public final class Bot_Gripper {
         gripper = hardwareMap.get(ServoImplEx.class, "gripper");
     }
 
-    public class GripperGrabInwards implements Action {
+    public class GripperIn implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            gripper.setPwmEnable();
-            gripper.setPosition(GRIPPER_GRABBING_INWARDS);
+            gripper.setPosition(GRIPPER_IN);
+            packet.put("GripperPos", gripper.getPosition());
             return false;
         }
     }
 
-    public Action GripperGrabInwards() {
-        return new GripperGrabInwards();
+    public Action GripperIn() {
+        return new GripperIn();
     }
 
     public class GripperOut implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            gripper.setPwmEnable();
             gripper.setPosition(GRIPPER_OUT);
+            packet.put("GripperPos", gripper.getPosition());
             return false;
         }
     }
@@ -52,38 +51,13 @@ public final class Bot_Gripper {
     public class GripperOpenHalfway implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            gripper.setPwmEnable();
             gripper.setPosition(GRIPPER_HALFWAY_OPEN);
+            packet.put("GripperPos", gripper.getPosition());
             return false;
         }
     }
 
     public Action GripperOpenHalfway() {
         return new GripperOpenHalfway();
-    }
-
-    public class GripperOpenToCollect implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            gripper.setPwmEnable();
-            gripper.setPosition(GRIPPER_COLLECT_OUT);
-            return false;
-        }
-    }
-
-    public Action GripperOpenToCollect() {
-        return new GripperOpenToCollect();
-    }
-
-    public class GripperDisable implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            gripper.setPwmDisable();
-            return false;
-        }
-    }
-
-    public Action GripperDisable() {
-        return new GripperDisable();
     }
 }
