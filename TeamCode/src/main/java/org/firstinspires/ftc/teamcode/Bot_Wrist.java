@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 @Config
 public final class Bot_Wrist {
     final double WRIST_COLLECT = 0.92;
+    final double WRIST_DIAGONAL_DOWN = 0.65;
     final double WRIST_DEPOSIT = 0.13;
 
     private ServoImplEx wrist;
@@ -41,5 +42,17 @@ public final class Bot_Wrist {
 
     public Action WristCollect() {
         return new WristCollect();
+    }
+
+    public class WristDiagonalDown implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            wrist.setPosition(WRIST_DIAGONAL_DOWN);
+            return false;
+        }
+    }
+
+    public Action WristDiagonalDown() {
+        return new WristDiagonalDown();
     }
 }

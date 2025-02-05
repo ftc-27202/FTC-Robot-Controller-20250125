@@ -110,6 +110,7 @@ public class JeffBaseTeleOpMode extends OpMode {
         limelight.start(); // This tells Limelight to start looking!
         limelight.pipelineSwitch(0); // Switch to pipeline number 0
         headlight = hardwareMap.get(Servo.class, "headlight");
+
         leftSlide = hardwareMap.get(DcMotor.class, "leftSlide");
         leftSlide.setDirection(DcMotor.Direction.FORWARD);
         leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

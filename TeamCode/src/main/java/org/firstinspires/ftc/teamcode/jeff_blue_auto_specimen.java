@@ -25,9 +25,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 //@Disabled
-@Autonomous(name = "02A Blue (Auto | Basket Side)", group = "Robot", preselectTeleOp = "02 Blue Alliance (TeleOp)")
+@Autonomous(name = "02B Blue (Auto | Specimen Side)", group = "Robot", preselectTeleOp = "02 Blue Alliance (TeleOp)")
 
-public class jeff_auto_basket_blue extends jeff_auto_basket_base {
+public class jeff_blue_auto_specimen extends jeff_base_auto_specimen {
 
     @Override
     public void runOpMode() {

@@ -27,8 +27,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.SleepAction;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -37,9 +35,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 //@Disabled
-@TeleOp(name = "98_Test_Vision", group = "Robot")
+@TeleOp(name = "Test Vision", group = "Test")
 
-public class Test_Vision extends LinearOpMode {
+public class test_vision extends LinearOpMode {
     final String allianceColor = "RED";  // Valid Values: RED or BLUE
     //    final int AllianceColor = "BLUE";  // Valid Values: RED or BLUE
 

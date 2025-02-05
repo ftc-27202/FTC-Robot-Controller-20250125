@@ -10,10 +10,9 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-public abstract class jeff_auto_basket_base extends LinearOpMode {
+public abstract class jeff_base_auto_basket extends LinearOpMode {
     private String allianceColor;
 
     public void setAllianceColor(String inAllianceColor) {
@@ -56,14 +55,14 @@ public abstract class jeff_auto_basket_base extends LinearOpMode {
 
         TrajectoryActionBuilder trajDriveToCollectSamplePosition3 = trajDriveToHighBasket3.endTrajectory().fresh()
                 .turnTo(Math.toRadians(120))
-                .splineToConstantHeading(new Vector2d(-61, -45), Math.toRadians(90));
+                .splineToConstantHeading(new Vector2d(-61, -44), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToHighBasket4 = trajDriveToCollectSamplePosition3.endTrajectory().fresh()
                 .turnTo(Math.toRadians(HighBasketHeading))
                 .strafeToConstantHeading(HighBasketVector);
 
         TrajectoryActionBuilder trajDriveToPark = trajDriveToHighBasket4.endTrajectory().fresh()
-                .splineToLinearHeading(new Pose2d(-36, -12, Math.toRadians(0)), 0)
+                .splineToLinearHeading(new Pose2d(-36, -10, Math.toRadians(0)), 0)
                 .lineToXConstantHeading(-27);
 
         while (!isStopRequested() && !opModeIsActive()) {
@@ -90,8 +89,7 @@ public abstract class jeff_auto_basket_base extends LinearOpMode {
                         new ParallelAction(
                                 headlight.headlight_Off(),
                                 indicatorlight.TurnIndicatorLight_AllianceColor(allianceColor),
-                                flag.FlagDown(),
-                                wrist.WristCollect()
+                                flag.FlagDown()
                         ),
 
                         // Score preloaded sample to high basket
@@ -105,13 +103,16 @@ public abstract class jeff_auto_basket_base extends LinearOpMode {
 
                         // Drive to collect 1st sample from mat
                         new ParallelAction(
-                                arm.ArmPrepareToCollect(),
+                                new SequentialAction(
+                                        wrist.WristCollect(),
+                                        new SleepAction(0.5),
+                                        arm.ArmPrepareToCollect()
+                                ),
                                 headlight.headlight_On(),
                                 slides.SlidesDownCatch(),
                                 actDriveToCollectSamplePosition1,
                                 wrist.WristCollect(),
-                                gripper.GripperOut(),
-                                bucket.BucketCatch()
+                                gripper.GripperOut()
                         ),
                         drivebase.AlignToNeutralSample("VERTICAL"),
                         arm.ArmCollectSample(),
@@ -121,6 +122,7 @@ public abstract class jeff_auto_basket_base extends LinearOpMode {
                         new ParallelAction(
                                 actDriveToHighBasket2,
                                 headlight.headlight_Off(),
+                                bucket.BucketCatch(),
                                 new SequentialAction(
                                         new ParallelAction(
                                                 wrist.WristDeposit(),

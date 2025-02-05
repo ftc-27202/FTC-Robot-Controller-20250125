@@ -25,9 +25,6 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ParallelAction;
-import com.acmerobotics.roadrunner.SequentialAction;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
@@ -36,25 +33,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 //@Disabled
-@TeleOp(name = "98_Test Gripper", group = "Robot")
+@TeleOp(name = "Test Wrist", group = "Test")
 
-public class Test_Gripper extends LinearOpMode {
-    final double GRIPPER_GRABBING_INWARDS = 0.35;
-    final double GRIPPER_HALFWAY_OPEN = 0.50;
-    final double GRIPPER_COLLECT_OUT = 0.65;
-    final double GRIPPER_OUT = 0.65;
+public class test_wrist extends LinearOpMode {
+    final double WRIST_COLLECT = 0.92;
+    final double WRIST_DIAGONAL_DOWN = 0.72;
+    final double WRIST_DEPOSIT = 0.13;
 
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
-    private ServoImplEx gripper;
+    private ServoImplEx wrist;
 
     @Override
     public void runOpMode() {
-        gripper = hardwareMap.get(ServoImplEx.class, "gripper");
+        wrist = hardwareMap.get(ServoImplEx.class, "wrist");
         TelemetryPacket packet = new TelemetryPacket();
-
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
 
         waitForStart();
 
@@ -62,20 +55,25 @@ public class Test_Gripper extends LinearOpMode {
 
         while (opModeIsActive()) {
             if (gamepad1.a) {
-                gripper.setPosition(GRIPPER_GRABBING_INWARDS);
+                wrist.setPosition(WRIST_DEPOSIT);
             }
             else if (gamepad1.b) {
-                gripper.setPosition(GRIPPER_HALFWAY_OPEN);
+                wrist.setPosition(WRIST_COLLECT);
             }
-            else if (gamepad1.x) {
-                gripper.setPosition(GRIPPER_OUT);
+            else if (gamepad1.y) {
+                wrist.setPosition(WRIST_DIAGONAL_DOWN);
             }
             else if (gamepad1.left_bumper) {
-                gripper.setPosition(-gamepad1.left_stick_y);
+                wrist.setPosition(-gamepad1.left_stick_y);
             }
 
+            telemetry.addData("Status", "Initialized");
+            telemetry.addData("gamepad1.a", "= WRIST_DEPOSIT");
+            telemetry.addData("gamepad1.b", "= WRIST_COLLECT");
+            telemetry.addData("gamepad1.y", "= WRIST_DIAGONAL_DOWN");
+            telemetry.addData("gamepad1.left_bumper && left_stick_y", "= manual control");
+            telemetry.addData("wrist.getPosition", wrist.getPosition());
             telemetry.addData("-gamepad1.left_stick_y", -gamepad1.left_stick_y);
-            telemetry.addData("gripper.getPosition", gripper.getPosition());
             telemetry.update();
         }
     }

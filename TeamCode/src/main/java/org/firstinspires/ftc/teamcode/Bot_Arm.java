@@ -19,16 +19,17 @@ public final class Bot_Arm {
                     * 1 / 360.0; // Ticks per degree, not per rotation
     final double ARM_COLLAPSED_INTO_ROBOT = 0;
     final double ARM_DROP_SAMPLE_TO_ZONE = 70 * ARM_TICKS_PER_DEGREE;
-    final double ARM_DEPOSIT = 88 * ARM_TICKS_PER_DEGREE;
+    final double ARM_DEPOSIT = 91 * ARM_TICKS_PER_DEGREE;
     final double ARM_STRAIGHT_UP = 90 * ARM_TICKS_PER_DEGREE;
     final double ARM_CLEAR_BUCKET = 100 * ARM_TICKS_PER_DEGREE;
     final double ARM_PREPARE_TO_ASCEND = 100 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SPECIMEN_BEFORE_SCORE = 70 * ARM_TICKS_PER_DEGREE;
+    final double ARM_SPECIMEN_BEFORE_SCORE = 68 * ARM_TICKS_PER_DEGREE;
     final double ARM_SPECIMEN_AFTER_SCORE = 115 * ARM_TICKS_PER_DEGREE;
-    final double ARM_PREPARE_TO_COLLECT = 173 * ARM_TICKS_PER_DEGREE; // almost parallel to the ground, just above specimen's height
+    final double ARM_PREPARE_TO_COLLECT = 174 * ARM_TICKS_PER_DEGREE; // almost parallel to the ground, just above specimen's height
     final double ARM_COLLECTED = ARM_PREPARE_TO_COLLECT;
-    final double ARM_COLLECT_SPECIMEN = 184 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SHOVE = 187 * ARM_TICKS_PER_DEGREE;
+//    final double ARM_COLLECT_SPECIMEN = 184 * ARM_TICKS_PER_DEGREE;
+    final double ARM_COLLECT_SPECIMEN = 180 * ARM_TICKS_PER_DEGREE;
+    final double ARM_SHOVE = 185 * ARM_TICKS_PER_DEGREE;
     final double ARM_COLLECT_SAMPLE = 187 * ARM_TICKS_PER_DEGREE;
 
     private DcMotorEx armMotor;

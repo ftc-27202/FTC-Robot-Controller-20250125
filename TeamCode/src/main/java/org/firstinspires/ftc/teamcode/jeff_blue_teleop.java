@@ -22,16 +22,16 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+@TeleOp(name = "02 Blue Alliance (TeleOp)", group = "Robot")
 //@Disabled
-@Autonomous(name = "01A Red (Auto | Basket Side)", group = "Robot", preselectTeleOp = "01 Red Alliance (TeleOp)")
 
-public class jeff_auto_basket_red extends jeff_auto_basket_base {
+public class jeff_blue_teleop extends jeff_base_teleop {
 
     @Override
     public void runOpMode() {
-        super.setAllianceColor("RED");
+        super.setAllianceColor("BLUE");
         super.runOpMode();
     }
 

@@ -11,10 +11,9 @@ import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-public abstract class jeff_auto_specimen_base extends LinearOpMode {
+public abstract class jeff_base_auto_specimen extends LinearOpMode {
     private String allianceColor;
 
     public void setAllianceColor(String inAllianceColor) {
@@ -37,12 +36,12 @@ public abstract class jeff_auto_specimen_base extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         TrajectoryActionBuilder trajDriveToSubmersible1 = drive.actionBuilder(initialPose)
-                .strafeToSplineHeading(new Vector2d(-6, -29), Math.toRadians(90));
+                .strafeToSplineHeading(new Vector2d(-6, -26), Math.toRadians(90));
 
-        TrajectoryActionBuilder trajDriveBackToScoreSpecimen1 = trajDriveToSubmersible1.endTrajectory().fresh()
-                .strafeTo(new Vector2d(-6, -33), new TranslationalVelConstraint(20.0));
-
-        TrajectoryActionBuilder trajDriveToSample1 = trajDriveBackToScoreSpecimen1.endTrajectory().fresh()
+//        TrajectoryActionBuilder trajDriveBackToScoreSpecimen1 = trajDriveToSubmersible1.endTrajectory().fresh()
+//                .strafeTo(new Vector2d(-6, -33), new TranslationalVelConstraint(20.0));
+//
+        TrajectoryActionBuilder trajDriveToSample1 = trajDriveToSubmersible1.endTrajectory().fresh()
                 .strafeToConstantHeading(new Vector2d(34, -46));
 
         while (!isStopRequested() && !opModeIsActive()) {
@@ -50,7 +49,7 @@ public abstract class jeff_auto_specimen_base extends LinearOpMode {
         }
 
         Action actDriveToSubmersible1 = trajDriveToSubmersible1.build();
-        Action actDriveBackToScoreSpecimen1 = trajDriveBackToScoreSpecimen1.build();
+//        Action actDriveBackToScoreSpecimen1 = trajDriveBackToScoreSpecimen1.build();
         Action actDriveToSample1 = trajDriveToSample1.build();
 
         waitForStart();
@@ -70,20 +69,34 @@ public abstract class jeff_auto_specimen_base extends LinearOpMode {
                                 bucket.BucketDump(),
                                 gripper.GripperIn()
                         ),
+                        // Score Preloaded Specimen
                         new ParallelAction(
                                 actDriveToSubmersible1,
                                 new SequentialAction(
-                                    slides.SlidesClearArm(),
-                                    arm.ArmDownSpecimenBeforeScore())
+                                    slides.SlidesUpAscend(),
+                                    arm.ArmDownSpecimenBeforeScore(),
+                                    slides.SlidesDownGround(),
+                                    bucket.BucketCatch()
+                                )
                         ),
-                        slides.SlidesDownGround(),
                         new SequentialAction(
                                 new ParallelAction(
-                                        actDriveBackToScoreSpecimen1,
-                                        arm.ArmSpecimenAfterScore()),
-                                new SleepAction(0.2),
+                                        arm.ArmSpecimenAfterScore(),
+                                        drivebase.MoveBackForSpecimen()),
+                                new SleepAction(0.20),
                                 gripper.GripperOut(),
-                                new SleepAction(1))
+                                arm.ArmUpSpecimenBeforeScore(),
+                                drivebase.MoveForwardForSpecimen(),
+                                bucket.BucketOff()
+                        )
+//                        new SequentialAction(
+//                                new ParallelAction(
+//                                        actDriveBackToScoreSpecimen1,
+//                                        drivebase.MoveBackForSpecimen()),
+//                                new SleepAction(0.20),
+//                                gripper.GripperOut(),
+//                                new SleepAction(0.50)),
+//                                drivebase.MoveForwardForSpecimen())
 //                        ,
 
 //                        // Drive to collect sample 1 from mat

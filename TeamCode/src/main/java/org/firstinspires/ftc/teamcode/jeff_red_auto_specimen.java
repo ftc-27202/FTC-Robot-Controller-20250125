@@ -22,27 +22,16 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.ParallelAction;
-import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.SleepAction;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@TeleOp(name = "02 Blue Alliance (TeleOp)", group = "Robot")
 //@Disabled
+@Autonomous(name = "01B Red (Auto | Specimen Side)", group = "Robot", preselectTeleOp = "01 Red Alliance (TeleOp)")
 
-public class jeff_teleop_alliance_blue extends jeff_teleop_alliance_base {
+public class jeff_red_auto_specimen extends jeff_base_auto_specimen {
 
     @Override
     public void runOpMode() {
-        super.setAllianceColor("BLUE");
+        super.setAllianceColor("RED");
         super.runOpMode();
     }
 

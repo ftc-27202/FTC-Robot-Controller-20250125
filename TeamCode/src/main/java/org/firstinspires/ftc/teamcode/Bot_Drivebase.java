@@ -156,4 +156,23 @@ public final class Bot_Drivebase {
 
     public Action MoveBackForSpecimen() {
         return new MoveBackForSpecimen();}
+
+    public class MoveForwardForSpecimen implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            Pose2d initialPose = new Pose2d(0, 0, 0);
+            MecanumDrive bot = new MecanumDrive(local_hardwareMap, initialPose);
+
+            Actions.runBlocking(
+                    bot.actionBuilder(new Pose2d(0, 0, 0))
+                            .strafeTo(new Vector2d(10, 0))
+                            .build()
+            );
+
+            return false;
+        }
+    }
+
+    public Action MoveForwardForSpecimen() {
+        return new MoveForwardForSpecimen();}
 }
