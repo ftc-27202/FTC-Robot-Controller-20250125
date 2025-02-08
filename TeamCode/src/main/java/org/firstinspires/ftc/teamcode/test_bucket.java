@@ -34,7 +34,6 @@ import java.util.List;
 
 //@Disabled
 @TeleOp(name = "Test Bucket", group = "Test")
-
 public class test_bucket extends LinearOpMode {
     final double BUCKET_CATCH = 0.36;
     final double BUCKET_DUMP = 0.0;
