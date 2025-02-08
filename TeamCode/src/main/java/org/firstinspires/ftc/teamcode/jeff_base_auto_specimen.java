@@ -22,7 +22,7 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        Pose2d initialPose = new Pose2d(6, -60, 0);
+        Pose2d initialPose = new Pose2d(11, -60, 0);
         MecanumDrive drive = new MecanumDrive(hardwareMap, initialPose);
         Bot_Slides slides = new Bot_Slides(hardwareMap);
         Bot_Bucket bucket = new Bot_Bucket(hardwareMap);
@@ -36,21 +36,41 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         TrajectoryActionBuilder trajDriveToSubmersible1 = drive.actionBuilder(initialPose)
-                .strafeToSplineHeading(new Vector2d(-6, -26), Math.toRadians(90));
+                .strafeToSplineHeading(new Vector2d(6, -26), Math.toRadians(90));
 
-//        TrajectoryActionBuilder trajDriveBackToScoreSpecimen1 = trajDriveToSubmersible1.endTrajectory().fresh()
-//                .strafeTo(new Vector2d(-6, -33), new TranslationalVelConstraint(20.0));
-//
         TrajectoryActionBuilder trajDriveToSample1 = trajDriveToSubmersible1.endTrajectory().fresh()
-                .strafeToConstantHeading(new Vector2d(34, -46));
+                .strafeToSplineHeading(new Vector2d(50, -44), Math.toRadians(90));
+
+        TrajectoryActionBuilder trajDriveToDropSample1 = trajDriveToSample1.endTrajectory().fresh()
+                .strafeToSplineHeading(new Vector2d(54, -48), Math.toRadians(120));
+
+        TrajectoryActionBuilder trajDriveToSpecimen2 = trajDriveToDropSample1.endTrajectory().fresh()
+                .strafeToSplineHeading(new Vector2d(31, -43), Math.toRadians(-45));
+
+        TrajectoryActionBuilder trajDriveToSubmersible2 = trajDriveToSpecimen2.endTrajectory().fresh()
+                .strafeToSplineHeading(new Vector2d(4, -28), Math.toRadians(90));
+
+        TrajectoryActionBuilder trajDriveToSpecimen3 = trajDriveToSubmersible2.endTrajectory().fresh()
+                .strafeToSplineHeading(new Vector2d(31, -43), Math.toRadians(-45));
+
+        TrajectoryActionBuilder trajDriveToSubmersible3 = trajDriveToSpecimen3.endTrajectory().fresh()
+                .strafeToSplineHeading(new Vector2d(2, -28), Math.toRadians(90));
+
+        TrajectoryActionBuilder trajDriveToPark = trajDriveToSubmersible3.endTrajectory().fresh()
+                .strafeToSplineHeading(new Vector2d(60, -52), Math.toRadians(90));
 
         while (!isStopRequested() && !opModeIsActive()) {
             telemetry.update();
         }
 
         Action actDriveToSubmersible1 = trajDriveToSubmersible1.build();
-//        Action actDriveBackToScoreSpecimen1 = trajDriveBackToScoreSpecimen1.build();
         Action actDriveToSample1 = trajDriveToSample1.build();
+        Action actDriveToDropSample1 = trajDriveToDropSample1.build();
+        Action actDriveToSpecimen2 = trajDriveToSpecimen2.build();
+        Action actDriveToSubmersible2 = trajDriveToSubmersible2.build();
+        Action actDriveToSpecimen3 = trajDriveToSpecimen3.build();
+        Action actDriveToSubmersible3 = trajDriveToSubmersible3.build();
+        Action actDriveToPark = trajDriveToPark.build();
 
         waitForStart();
 
@@ -69,155 +89,138 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                                 bucket.BucketDump(),
                                 gripper.GripperIn()
                         ),
-                        // Score Preloaded Specimen
+
+                        // Score Preloaded Specimen: Before
                         new ParallelAction(
                                 actDriveToSubmersible1,
                                 new SequentialAction(
-                                    slides.SlidesUpAscend(),
+                                    slides.SlidesClearArm(),
                                     arm.ArmDownSpecimenBeforeScore(),
-                                    slides.SlidesDownGround(),
-                                    bucket.BucketCatch()
+                                    slides.SlidesDownGround()
                                 )
                         ),
+
+                        // Score Preloaded Specimen: After
+                        new SequentialAction(
+                                new ParallelAction(
+                                        arm.ArmSpecimenAfterScore(),
+                                        drivebase.MoveBackForSpecimen()),
+                                        new SequentialAction(
+                                                bucket.BucketCatch(),
+                                                new SleepAction(0.25),
+                                                bucket.BucketOff()),
+                                new SleepAction(0.20),
+                                gripper.GripperOut(),
+                                arm.ArmUpSpecimenBeforeScore()
+                        ),
+
+                        // Drive to collect sample 1 from mat
+                        new ParallelAction(
+                                gripper.GripperOut(),
+                                headlight.headlight_On(),
+                                wrist.WristCollect(),
+                                new SequentialAction(
+                                        new ParallelAction(
+                                            actDriveToSample1,
+                                            new SequentialAction(
+                                                new SleepAction(1.5),
+                                                arm.ArmPrepareToCollectSpecimenAuto())),
+                                        drivebase.AlignToAllianceSample("VERTICAL"),
+                                        arm.ArmCollectSample(),
+                                        gripper.GripperIn(),
+                                        new SleepAction(0.2),
+                                        drivebase.MoveBackToToInitialPose_ForSample()
+                                )
+                        ),
+
+                        // Drive to drop sample 1 to observation zone
+                        new SequentialAction(
+                                new ParallelAction(
+                                    actDriveToDropSample1,
+                                    arm.ArmDropSampleToZone(),
+                                    new SequentialAction(
+                                            wrist.WristDeposit(),
+                                            new SleepAction(0.50))),
+                                gripper.GripperOut(),
+                                new SleepAction(0.2)),
+
+                        // Drive to collect specimen 2 from mat
+                        new SequentialAction(
+                                new ParallelAction(
+                                    actDriveToSpecimen2,
+                                    arm.ArmPrepareToCollectSpecimenAuto(),
+                                    wrist.WristCollect(),
+                                    gripper.GripperOut()),
+                                drivebase.AlignToSpecimen(),
+                                arm.ArmCollectSpecimen(),
+                                gripper.GripperIn(),
+                                new SleepAction(0.2),
+                                drivebase.MoveBackToToInitialPose_ForSpecimen()
+                        ),
+
+                        // Score specimen 2: Before
+                        new ParallelAction(
+                                actDriveToSubmersible2,
+                                arm.ArmUpSpecimenBeforeScore()
+                        ),
+
+                        // Score specimen 2: After
                         new SequentialAction(
                                 new ParallelAction(
                                         arm.ArmSpecimenAfterScore(),
                                         drivebase.MoveBackForSpecimen()),
                                 new SleepAction(0.20),
                                 gripper.GripperOut(),
-                                arm.ArmUpSpecimenBeforeScore(),
-                                drivebase.MoveForwardForSpecimen(),
-                                bucket.BucketOff()
+                                arm.ArmUpSpecimenBeforeScore()
+                        ),
+
+                        // Drive to collect specimen 3 from mat
+                        new SequentialAction(
+                                new ParallelAction(
+                                        actDriveToSpecimen3,
+                                        new SequentialAction(
+                                                new SleepAction(1.5),
+                                                arm.ArmPrepareToCollectSpecimenAuto()),
+                                        wrist.WristCollect(),
+                                        gripper.GripperOut()),
+                                drivebase.AlignToSpecimen(),
+                                arm.ArmCollectSpecimen(),
+                                gripper.GripperIn(),
+                                new SleepAction(0.2),
+                                drivebase.MoveBackToToInitialPose_ForSpecimen()
+                        ),
+
+                        // Score specimen 3: Before
+                        new ParallelAction(
+                                actDriveToSubmersible3,
+                                arm.ArmUpSpecimenBeforeScore()
+                        ),
+
+                        // Score specimen 3: After
+                        new SequentialAction(
+                                new ParallelAction(
+                                        arm.ArmSpecimenAfterScore(),
+                                        drivebase.MoveBackForSpecimen()
+                                ),
+                                new SleepAction(0.20),
+                                gripper.GripperOut(),
+                                arm.ArmUpSpecimenBeforeScore()
+                        ),
+
+                        // Park and Robot to Initial Position
+                        new ParallelAction(
+                                actDriveToPark,
+                                new SequentialAction(
+                                        slides.SlidesClearArmAutoSpecimen(),
+                                        bucket.BucketCatch(),
+                                        arm.ArmCollapsedIntoRobot(),
+                                        slides.SlidesDownGround()),
+                                bucket.BucketOff(),
+                                headlight.headlight_Off()
                         )
-//                        new SequentialAction(
-//                                new ParallelAction(
-//                                        actDriveBackToScoreSpecimen1,
-//                                        drivebase.MoveBackForSpecimen()),
-//                                new SleepAction(0.20),
-//                                gripper.GripperOut(),
-//                                new SleepAction(0.50)),
-//                                drivebase.MoveForwardForSpecimen())
-//                        ,
-
-//                        // Drive to collect sample 1 from mat
-//                        new ParallelAction(
-//                                headlight.headlight_On(),
-//                                arm.ArmPrepareToCollect(),
-//                                actDriveToSample1,
-//                                wrist.WristCollect(),
-//                                gripper.GripperOut()
-//                        )
-//                        ,
-//                        drivebase.AlignToAllianceSample("VERTICAL"),
-//                        arm.ArmCollectSample(),
-//                        gripper.GripperIn(),
-//                        new SleepAction(0.2),
-//                        drivebase.MoveBackToToInitialPose_ForSpecimen(),
-//                        headlight.headlight_Off(),
-
-//                        // Drop Sample to Observation Zone
-//                        arm.ArmDropSampleToZone(),
-//                        wrist.WristDeposit(),
-//                        new SleepAction(0.5),  // wait for the elbow to turn
-//                        gripper.GripperOut(),
-//                        new SleepAction(0.25),    // wait for sample to drop to zone
-//
-//                        // Drive to collect sample 2 from mat
-//                        new ParallelAction(
-//                                headlight.headlight_On(),
-//                                arm.ArmPrepareToCollect(),
-//                                actDriveToSample2,
-//                                wrist.WristCollect(),
-//                                gripper.GripperOut()
-//                        ),
-//                        drivebase.AlignToAllianceSample("VERTICAL"),
-//                        arm.ArmCollectSample(),
-//                        gripper.GripperIn(),
-//                        new SleepAction(0.2),
-//                        drivebase.MoveBackToToInitialPose_ForSpecimen(),
-//                        headlight.headlight_Off(),
-//
-//                        // Drop Sample to Observation Zone
-//                        arm.ArmDropSampleToZone(),
-//                        wrist.WristDeposit(),
-//                        new SleepAction(0.5),  // wait for the elbow to turn
-//                        gripper.GripperOut(),
-//                        new SleepAction(0.25),    // wait for sample to drop to zone
-//
-//                        // Drive to collect sample 3 from mat
-//                        new ParallelAction(
-//                                headlight.headlight_On(),
-//                                arm.ArmPrepareToCollect(),
-//                                actDriveToSample3,
-//                                wrist.WristCollect(),
-//                                gripper.GripperOut()
-//                        ),
-//                        drivebase.AlignToAllianceSample("VERTICAL"),
-//                        arm.ArmCollectSample(),
-//                        gripper.GripperIn(),
-//                        new SleepAction(0.2),
-//                        drivebase.MoveBackToToInitialPose_ForSpecimen(),
-//                        headlight.headlight_Off(),
-//
-//                        // Drop Sample to Observation Zone
-//                        actDriveToDropSample3,
-//                        arm.ArmDropSampleToZone(),
-//                        wrist.WristDeposit(),
-//                        new SleepAction(0.5),  // wait for the elbow to turn
-//                        gripper.GripperOut(),
-//                        new SleepAction(0.25),    // wait for sample to drop to zone
-//
-//                        // Drive to collect specimen 2 from mat
-//                        new ParallelAction(
-//                                headlight.headlight_On(),
-//                                actDriveToCollectSpecimen2,
-//                                arm.ArmPrepareToCollect(),
-//                                wrist.WristCollect(),
-//                                gripper.GripperOut()
-//                        ),
-//                        drivebase.AlignToSpecimen(),
-//                        arm.ArmCollectSpecimen(),
-//                        gripper.GripperIn(),
-//                        new SleepAction(0.2),
-//                        drivebase.MoveBackToToInitialPose_ForSpecimen(),
-//                        headlight.headlight_Off()
-//                        ,
-
-//                        new ParallelAction(
-//                                actDriveToSubmersible2,
-//                                arm.ArmUpSpecimenBeforeScore()
-//                        ),
-//                        new ParallelAction(
-//                                actDriveBackToScoreSpecimen2,
-//                                arm.ArmSpecimenAfterScore()
-//                        ),
-//
-//                        // Drive to collect specimen 3 from mat
-//                        new ParallelAction(
-//                                headlight.headlight_On(),
-//                                actDriveToCollectSpecimen3,
-//                                arm.ArmPrepareToCollect(),
-//                                wrist.WristCollect(),
-//                                gripper.GripperOut()
-//                        ),
-//                        drivebase.AlignToSpecimen(),
-//                        arm.ArmCollectSpecimen(),
-//                        gripper.GripperIn(),
-//                        new SleepAction(0.2),
-//                        drivebase.MoveBackToToInitialPose_ForSpecimen(),
-//                        headlight.headlight_Off(),
-//
-//                        new ParallelAction(
-//                                actDriveToSubmersible3,
-//                                arm.ArmUpSpecimenBeforeScore()
-//                        ),
-//                        new ParallelAction(
-//                                actDriveBackToScoreSpecimen3,
-//                                arm.ArmSpecimenAfterScore()
-//                        ),
-//
-//                        new SleepAction(5)  //temporary
                 )
         );
+        telemetry.addData("Duration", this.getRuntime());
+        telemetry.update();
     }
 }

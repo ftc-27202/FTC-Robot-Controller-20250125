@@ -164,34 +164,46 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                         wrist.WristDeposit(),
                         slides.SlidesUpCatch(),
                         new SequentialAction(
-                            arm.ArmDeposit(),
-                            gripper.GripperOut(),
-                            new SleepAction(0.2),
-                            gripper.GripperIn()
+                                arm.ArmDeposit(),
+                                gripper.GripperOut(),
+                                new SleepAction(0.2),
+                                gripper.GripperIn()
                         )
                 ));
-            } else if (gamepad1.dpad_left) {
-                // Prepare to Score Specimen
-                runningActions.add(new ParallelAction(
-                        slides.SlidesDownGround(),
-                        arm.ArmUpSpecimenBeforeScore()
-                ));
-            } else if (gamepad1.dpad_right) {
-                // Score Specimen
-                runningActions.add(new SequentialAction(
+            } else if (gamepad1.dpad_up) {
+                    // Prepare Sample to Score in High Basket
+                    speed = 0.40;
+                    turn_speed = 0.80;
+                    runningActions.add(new ParallelAction(
+                            headlight.headlight_Off(),
+                            new SequentialAction(
+                                    arm.ArmClearBucket(),
+                                    slides.SlidesUpHigh()
+                            )));
+            } else if (gamepad1.right_bumper && gamepad1.dpad_left) {
+                // Prepare to Ascend
+                runningActions.add(
                         new ParallelAction(
-                            arm.ArmSpecimenAfterScore(),
-                            drivebase.MoveBackForSpecimen()),
-                            new SleepAction(0.20),
-                            gripper.GripperOut()
-                    ));
+                                slides.SlidesUpAscend(),
+                                wrist.WristDeposit(),
+                                arm.ArmPrepareToAscend(),
+                                bucket.BucketDump()));
+            }
+            else if (gamepad1.right_bumper && gamepad1.dpad_right) {
+                // Ascend to Level 2
+                runningActions.add(
+                        new SequentialAction(
+                                arm.ArmDownForAscending(),
+                                new ParallelAction(
+                                    slides.SlidesDownGround(),
+                                    arm.ArmCollapsedIntoRobot()))
+                );
             } else if (gamepad1.right_bumper) {
                 // Dump Bucket
                 runningActions.add(new SequentialAction(
                         bucket.BucketDump()
                 ));
-            }
-            else if (gamepad1.left_bumper && gamepad1.a) {
+            } else if (gamepad1.left_bumper && gamepad1.a) {
                 // Flag Down
                 runningActions.add(new SequentialAction(
                         flag.FlagDown()
@@ -216,20 +228,29 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                 ));
             };
 
-            if (gamepad1.dpad_up) {
-                // Prepare Sample to Score in High Basket
-                speed = 0.40;
-                turn_speed = 0.80;
-                runningActions.add(new ParallelAction(
-                        headlight.headlight_Off(),
-                        new SequentialAction(
-                                arm.ArmClearBucket(),
-                                slides.SlidesUpHigh()
-                        )));
-            }
-
             // Gamepad 2 Controls
-            if (gamepad2.x) {
+            if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.a) {
+                // reset slides and arms
+                runningActions.add(new ParallelAction(
+                        slides.ResetSlides(),
+                        arm.ArmReset(),
+                        headlight.headlight_Off(),
+                        new SleepAction(0.05),
+                        headlight.headlight_On(),
+                        new SleepAction(0.05),
+                        headlight.headlight_Off()
+                ));
+            } else if (gamepad2.left_bumper) {
+                    // move slides, using the gamepad2.right_stick_y for desired adjustment
+                    runningActions.add(new SequentialAction(
+                            slides.MoveSlides(-gamepad2.right_stick_y * 200)
+                    ));
+            } else if (gamepad2.right_bumper) {
+                    // move arm, using the gamepad2.right_stick_y for desired adjustment
+                    runningActions.add(new SequentialAction(
+                            arm.MoveArm(gamepad2.right_stick_y * 10)
+                    ));
+            } else if (gamepad2.x) {
                 // prepare to collect (either sample of specimen)
                 speed = 1.0;
                 turn_speed = 1.0;
@@ -244,8 +265,7 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                         new SequentialAction(
                                 wrist.WristCollect(),
                                 arm.ArmPrepareToCollect())));
-            }
-            else if (gamepad2.left_bumper && gamepad2.a) {
+            } else if (gamepad2.left_bumper && gamepad2.a) {
                 // collect alliance sample: gripper out to in
                 runningActions.add(new ParallelAction(
                         gripper.GripperOut(),
@@ -315,26 +335,21 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                                 arm.ArmCollected())
                 ));
             } else if (gamepad2.dpad_left) {
-                // Prepare to Ascend
-                runningActions.add(
+                // Prepare to Score Specimen
+                runningActions.add(new ParallelAction(
+                        slides.SlidesDownGround(),
+                        arm.ArmUpSpecimenBeforeScore()
+                ));
+            } else if (gamepad2.dpad_right) {
+                // Score Specimen
+                runningActions.add(new SequentialAction(
                         new ParallelAction(
-                                slides.SlidesUpAscend(),
-                                arm.ArmPrepareToAscend(),
-                                wrist.WristDeposit(),
-                                bucket.BucketDump()));
-            }
-            else if (gamepad2.dpad_right) {
-                // Ascend to Level 2
-                runningActions.add(
-                        new SequentialAction(
-                                bucket.BucketCatch(),
-                                bucket.BucketOff(),
-                                arm.ArmCollapsedIntoRobot(),
-                                slides.SlidesDownGround()
-                        )
-                );
-            }
-            else if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
+                                arm.ArmSpecimenAfterScore(),
+                                drivebase.MoveBackForSpecimen()),
+                        new SleepAction(0.20),
+                        gripper.GripperOut()
+                ));
+            } else if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
                 // return to from starting position
                 runningActions.add(new SequentialAction(
                         new ParallelAction(
@@ -353,32 +368,6 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                         slides.SlidesDownGround())
                 );
             };
-
-            if (gamepad2.left_bumper) {
-                // move slides, using the gamepad2.right_stick_y for desired adjustment
-                runningActions.add(new SequentialAction(
-                        slides.MoveSlides(-gamepad2.right_stick_y * 200)
-                ));
-
-            };
-            if (gamepad2.right_bumper) {
-                // move arm, using the gamepad2.right_stick_y for desired adjustment
-                runningActions.add(new SequentialAction(
-                        arm.MoveArm(gamepad2.right_stick_y * 10)
-                ));
-
-            };
-            if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.a) {
-                // reset slides and arms
-                runningActions.add(new ParallelAction(
-                        slides.ResetSlides(),
-                        arm.ArmReset(),
-                        headlight.headlight_On(),
-                        new SleepAction(0.1),
-                        headlight.headlight_Off()
-                ));
-            };
-
 
             //        //slides not in position
             //        if (getRuntime() >= lastSlideActionTime + SLIDE_STALL_TIME) {

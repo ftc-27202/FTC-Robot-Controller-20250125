@@ -36,6 +36,7 @@ public final class Bot_Drivebase {
             Pose2d initialPose = new Pose2d(0, 0, 0);
             MecanumDrive bot = new MecanumDrive(local_hardwareMap, initialPose);
 
+            crosshair = new Vector2d(0, 0);
             crosshair = camera.ObtainCrosshair("YELLOW", orientation);
             packet.put("crosshair.x", crosshair.x);
             packet.put("crosshair.y", crosshair.y);
@@ -60,6 +61,7 @@ public final class Bot_Drivebase {
             Pose2d initialPose = new Pose2d(0, 0, 0);
             MecanumDrive bot = new MecanumDrive(local_hardwareMap, initialPose);
 
+            crosshair = new Vector2d(0, 0);
             crosshair = camera.ObtainCrosshair(allianceColor, orientation);
             packet.put("crosshair.x", crosshair.x);
             packet.put("crosshair.y", crosshair.y);
@@ -84,14 +86,15 @@ public final class Bot_Drivebase {
             Pose2d initialPose = new Pose2d(0, 0, 0);
             MecanumDrive bot = new MecanumDrive(local_hardwareMap, initialPose);
 
-            crosshair = camera.ObtainCrosshair(allianceColor, "VERTICAL");
+            crosshair = new Vector2d(0, 0);
+            crosshair = camera.ObtainCrosshair(allianceColor, "VERTICAL_SPECIMEN");
             packet.put("color", allianceColor);
             packet.put("crosshair.x", crosshair.x);
             packet.put("crosshair.y", crosshair.y);
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(crosshair.y, -(crosshair.x - 1)))
+                            .strafeTo(new Vector2d(crosshair.y, -(crosshair.x)))
                             .build()
             );
 
@@ -127,7 +130,7 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(-crosshair.y, crosshair.x + 1))
+                            .strafeTo(new Vector2d(-crosshair.y, crosshair.x))
                             .build()
             );
             return false;

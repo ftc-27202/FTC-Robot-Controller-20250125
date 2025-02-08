@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 @Config
 public final class Bot_Bucket {
-    final double BUCKET_CATCH = 0.5;
-    final double BUCKET_DUMP = 0.1;
+    final double BUCKET_CATCH = 0.36;
+    final double BUCKET_DUMP = 0.0;
 
     private ServoImplEx bucket;
 

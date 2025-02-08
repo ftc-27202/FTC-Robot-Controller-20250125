@@ -18,19 +18,21 @@ public final class Bot_Arm {
                     * 100.0 / 20.0 // This is the external gear reduction, a 20T pinion gear that drives a 100T hub-mount gear
                     * 1 / 360.0; // Ticks per degree, not per rotation
     final double ARM_COLLAPSED_INTO_ROBOT = 0;
-    final double ARM_DROP_SAMPLE_TO_ZONE = 70 * ARM_TICKS_PER_DEGREE;
+    final double ARM_DOWN_FOR_ASCENDING = 55 * ARM_TICKS_PER_DEGREE;
+    final double ARM_SPECIMEN_BEFORE_SCORE = 68 * ARM_TICKS_PER_DEGREE;
+    final double ARM_DROP_SAMPLE_TO_ZONE = 73 * ARM_TICKS_PER_DEGREE;
     final double ARM_DEPOSIT = 91 * ARM_TICKS_PER_DEGREE;
     final double ARM_STRAIGHT_UP = 90 * ARM_TICKS_PER_DEGREE;
     final double ARM_CLEAR_BUCKET = 100 * ARM_TICKS_PER_DEGREE;
     final double ARM_PREPARE_TO_ASCEND = 100 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SPECIMEN_BEFORE_SCORE = 68 * ARM_TICKS_PER_DEGREE;
     final double ARM_SPECIMEN_AFTER_SCORE = 115 * ARM_TICKS_PER_DEGREE;
-    final double ARM_PREPARE_TO_COLLECT = 174 * ARM_TICKS_PER_DEGREE; // almost parallel to the ground, just above specimen's height
+    final double ARM_PREPARE_TO_COLLECT_SPECIMEN_AUTO = 170 * ARM_TICKS_PER_DEGREE;
+    final double ARM_PREPARE_TO_COLLECT = 172 * ARM_TICKS_PER_DEGREE; // almost parallel to the ground, just above specimen's height
     final double ARM_COLLECTED = ARM_PREPARE_TO_COLLECT;
-//    final double ARM_COLLECT_SPECIMEN = 184 * ARM_TICKS_PER_DEGREE;
-    final double ARM_COLLECT_SPECIMEN = 180 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SHOVE = 185 * ARM_TICKS_PER_DEGREE;
-    final double ARM_COLLECT_SAMPLE = 187 * ARM_TICKS_PER_DEGREE;
+    final double ARM_COLLECT_SPECIMEN = 178.5 * ARM_TICKS_PER_DEGREE;
+    final double ARM_SHOVE = 184 * ARM_TICKS_PER_DEGREE;
+    final double ARM_COLLECT_SAMPLE = 184 * ARM_TICKS_PER_DEGREE;
+    //    final double ARM_COLLECT_SPECIMEN = 184 * ARM_TICKS_PER_DEGREE;
 
     private DcMotorEx armMotor;
     private float desiredAdjustment = 0;
@@ -243,6 +245,31 @@ public final class Bot_Arm {
         return new ArmCollapsedIntoRobot();
     }
 
+    public class ArmDownForAscending implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                armMotor.setPower(1.0);
+                initialized = true;
+            }
+
+            double pos = armMotor.getCurrentPosition();
+            packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
+            if (pos > ARM_DOWN_FOR_ASCENDING) {
+                armMotor.setTargetPosition((int) ARM_DOWN_FOR_ASCENDING);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public Action ArmDownForAscending() {
+        return new ArmDownForAscending();
+    }
+
     public class ArmPrepareToCollect implements Action {
         private boolean initialized = false;
 
@@ -266,6 +293,31 @@ public final class Bot_Arm {
 
     public Action ArmPrepareToCollect() {
         return new ArmPrepareToCollect();
+    }
+
+    public class ArmPrepareToCollectSpecimenAuto implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                armMotor.setPower(1.0);
+                initialized = true;
+            }
+
+            double pos = armMotor.getCurrentPosition();
+            packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
+            if (pos < ARM_PREPARE_TO_COLLECT_SPECIMEN_AUTO) {
+                armMotor.setTargetPosition((int) ARM_PREPARE_TO_COLLECT_SPECIMEN_AUTO);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public Action ArmPrepareToCollectSpecimenAuto() {
+        return new ArmPrepareToCollectSpecimenAuto();
     }
 
     public class ArmStraightUp implements Action {
@@ -394,9 +446,17 @@ public final class Bot_Arm {
     }
 
     public class ArmReset implements Action {
+        private boolean initialized = false;
+
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                armMotor.setPower(0.0);
+                initialized = true;
+            }
+
             armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             return false;
         }
     }

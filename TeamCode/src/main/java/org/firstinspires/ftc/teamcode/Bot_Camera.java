@@ -27,6 +27,8 @@ import java.util.List;
 
 @Config
 public final class Bot_Camera {
+    final int LIMELIGHT_PIPELINE_RED_SPECIMEN_INDEX = 2;
+    final int LIMELIGHT_PIPELINE_BLUE_SPECIMEN_INDEX = 3;
     final int LIMELIGHT_PIPELINE_YELLOW_HORIZONTAL_INDEX = 4;
     final int LIMELIGHT_PIPELINE_RED_HORIZONTAL_INDEX = 5;
     final int LIMELIGHT_PIPELINE_BLUE_HORIZONTAL_INDEX = 6;
@@ -34,7 +36,9 @@ public final class Bot_Camera {
     final int LIMELIGHT_PIPELINE_RED_VERTICAL_INDEX = 8;
     final int LIMELIGHT_PIPELINE_BLUE_VERTICAL_INDEX = 9;
 
-    final double ANGLE_TO_DISTANCE_FACTOR = 0.17;  // conversion for Limelight degrees to inches (very crude)
+    final double ANGLE_TO_DISTANCE_X_FACTOR = 0.17;  // conversion for Limelight degrees to inches (very crude)
+    final double ANGLE_TO_DISTANCE_Y_FACTOR = 0.07;  // conversion for Limelight degrees to inches (very crude)
+    final double INCH_TO_PIXELS_FACTOR = 80;  // conversion for Limelight pixels to inches
 
     double crosshair_x;
     double crosshair_y;
@@ -69,6 +73,12 @@ public final class Bot_Camera {
         }
         else if (color.equals("BLUE") && orientation.equals("HORIZONTAL")) {
             limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_BLUE_HORIZONTAL_INDEX);
+        }
+        else if (color.equals("RED") && orientation.equals("VERTICAL_SPECIMEN")) {
+            limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_RED_SPECIMEN_INDEX);
+        }
+        else if (color.equals("BLUE") && orientation.equals("VERTICAL_SPECIMEN")) {
+            limelight3A.pipelineSwitch(LIMELIGHT_PIPELINE_BLUE_SPECIMEN_INDEX);
         };
 
         LLStatus status = limelight3A.getStatus();
@@ -105,13 +115,16 @@ public final class Bot_Camera {
                 LLResultTypes.ColorResult cr = colorResults.get(0);
 
                 telemetry.addData("Color (degrees)", "X: %.2f, Y: %.2f", cr.getTargetXDegrees(), cr.getTargetYDegrees());
+                telemetry.addData("Pixel (pixels])", "X: %.2f, Y: %.2f", cr.getTargetXPixels(), cr.getTargetYPixels());
 
-//                    crosshair_x = 8 * Math.tan(cr.getTargetXDegrees());
-                crosshair_x = (cr.getTargetXDegrees() * -1) * ANGLE_TO_DISTANCE_FACTOR ;  // multiply by negative 1 since the camera is upside down
-                crosshair_y = (cr.getTargetYDegrees() * -1) * ANGLE_TO_DISTANCE_FACTOR - 1;  // less 1 inch, since limelight's crosshair is set to Bottom (unrotated)
+//                crosshair_x = 8 * Math.tan(cr.getTargetXDegrees());
+                crosshair_x = (cr.getTargetXDegrees() * -1) * ANGLE_TO_DISTANCE_X_FACTOR ;  // multiply by negative 1 since the camera is upside down
+                crosshair_y = (cr.getTargetYDegrees() * -1) * ANGLE_TO_DISTANCE_Y_FACTOR;  // less 1 inch, since limelight's crosshair is set to Bottom (unrotated)
                 crosshair_angle = 0;
 
-                telemetry.addData("ANGLE_TO_DISTANCE_FACTOR", ANGLE_TO_DISTANCE_FACTOR);
+                telemetry.addData("ANGLE_TO_DISTANCE_X_FACTOR", ANGLE_TO_DISTANCE_X_FACTOR);
+                telemetry.addData("ANGLE_TO_DISTANCE_Y_FACTOR", ANGLE_TO_DISTANCE_Y_FACTOR);
+                telemetry.addData("INCH_TO_PIXELS_FACTOR", INCH_TO_PIXELS_FACTOR);
                 telemetry.addData("Crosshair (fudged inches)", "X: %.2f, Y: %.2f", crosshair_x, crosshair_y);
             }
             else {

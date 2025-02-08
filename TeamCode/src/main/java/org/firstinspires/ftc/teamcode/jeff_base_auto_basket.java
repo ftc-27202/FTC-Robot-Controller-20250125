@@ -39,7 +39,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
                 .strafeTo(new Vector2d(-44, -60));
 
         TrajectoryActionBuilder trajDriveToCollectSamplePosition1 = trajDriveToHighBasket.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(-51, -46), Math.toRadians(90));
+                .strafeToSplineHeading(new Vector2d(-51, -45), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToHighBasket2 = trajDriveToCollectSamplePosition1.endTrajectory().fresh()
                 .turnTo(Math.toRadians(HighBasketHeading))
@@ -47,7 +47,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
 
         TrajectoryActionBuilder trajDriveToCollectSamplePosition2 = trajDriveToHighBasket2.endTrajectory().fresh()
                 .turnTo(Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(-61, -46), Math.toRadians(90));
+                .splineToConstantHeading(new Vector2d(-61, -45), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToHighBasket3 = trajDriveToCollectSamplePosition2.endTrajectory().fresh()
                 .turnTo(Math.toRadians(HighBasketHeading))
@@ -55,7 +55,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
 
         TrajectoryActionBuilder trajDriveToCollectSamplePosition3 = trajDriveToHighBasket3.endTrajectory().fresh()
                 .turnTo(Math.toRadians(120))
-                .splineToConstantHeading(new Vector2d(-61, -44), Math.toRadians(90));
+                .splineToConstantHeading(new Vector2d(-61, -43), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToHighBasket4 = trajDriveToCollectSamplePosition3.endTrajectory().fresh()
                 .turnTo(Math.toRadians(HighBasketHeading))

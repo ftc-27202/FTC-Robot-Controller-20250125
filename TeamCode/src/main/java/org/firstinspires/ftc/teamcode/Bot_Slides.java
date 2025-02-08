@@ -33,7 +33,8 @@ public final class Bot_Slides {
     final int SLIDE_GROUND = 0;
     final int SLIDE_CATCH = 500;
     final int SLIDE_CLEAR_ARM = 900;
-    final int SLIDE_ASCEND = 950;
+    final int SLIDE_ASCEND = 930;
+    final int SLIDE_CLEAR_ARM_AUTO_SPECIMEN = 1200;
     final int SLIDE_HIGH = 2650;
     final double SLIDE_STALL_TIME = 2.0;
 
@@ -148,6 +149,35 @@ public final class Bot_Slides {
         return new SlidesClearArm();
     }
 
+    public class SlidesClearArmAutoSpecimen implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                leftSlide.setPower(1.0);
+                rightSlide.setPower(1.0);
+                initialized = true;
+            }
+
+            double posLeftSlide = leftSlide.getCurrentPosition();
+            double posRightSlide = rightSlide.getCurrentPosition();
+            packet.put("posLeftSlide", posLeftSlide);
+            packet.put("posRightSlide", posRightSlide);
+            if (posRightSlide < (SLIDE_CLEAR_ARM_AUTO_SPECIMEN - 100)) {
+                leftSlide.setTargetPosition(SLIDE_CLEAR_ARM_AUTO_SPECIMEN);
+                rightSlide.setTargetPosition(SLIDE_CLEAR_ARM_AUTO_SPECIMEN);
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public Action SlidesClearArmAutoSpecimen() {
+        return new SlidesClearArmAutoSpecimen();
+    }
+
     public class SlidesDownCatch implements Action {
         private boolean initialized = false;
 
@@ -236,10 +266,20 @@ public final class Bot_Slides {
     }
 
     public class ResetSlides implements Action {
+        private boolean initialized = false;
+
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                leftSlide.setPower(0.0);
+                rightSlide.setPower(0.0);
+                initialized = true;
+            }
+
             leftSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            leftSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             return false;
         }
     }
