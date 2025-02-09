@@ -33,7 +33,7 @@ public final class Bot_Slides {
     final int SLIDE_GROUND = 0;
     final int SLIDE_CATCH = 500;
     final int SLIDE_CLEAR_ARM = 900;
-    final int SLIDE_ASCEND = 930;
+    final int SLIDE_ASCEND = 1100;
     final int SLIDE_CLEAR_ARM_AUTO_SPECIMEN = 1200;
     final int SLIDE_HIGH = 2650;
     final double SLIDE_STALL_TIME = 2.0;

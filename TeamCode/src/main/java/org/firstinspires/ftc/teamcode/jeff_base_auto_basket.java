@@ -32,7 +32,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
         Bot_IndicatorLight indicatorlight = new Bot_IndicatorLight(hardwareMap);
         Bot_Drivebase drivebase = new Bot_Drivebase(hardwareMap, "NEUTRAL");
         int HighBasketHeading = 45;
-        Vector2d HighBasketVector = new Vector2d(-54, -48);
+        Vector2d HighBasketVector = new Vector2d(-55, -48);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         TrajectoryActionBuilder trajDriveToHighBasket = drive.actionBuilder(initialPose)
@@ -89,7 +89,8 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
                         new ParallelAction(
                                 headlight.headlight_Off(),
                                 indicatorlight.TurnIndicatorLight_AllianceColor(allianceColor),
-                                flag.FlagDown()
+                                flag.FlagDown(),
+                                bucket.BucketCatch()
                         ),
 
                         // Score preloaded sample to high basket

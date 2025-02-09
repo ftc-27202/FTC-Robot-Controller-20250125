@@ -13,6 +13,8 @@ import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -23,11 +25,16 @@ public final class Bot_Drivebase {
     private HardwareMap local_hardwareMap;
     private String allianceColor;
     private String orientation;
+    public LLResult LLResult;
+    public LLStatus LLStatus;
 
     public Bot_Drivebase(HardwareMap hardwareMap, String InputAllianceColor) {
         local_hardwareMap = hardwareMap;
         camera = new Bot_Camera(hardwareMap);
         allianceColor = InputAllianceColor;
+
+        LLResult = camera.LimelightResult;
+        LLStatus = camera.LimelightStatus;
     }
 
     public class AlignToNeutralSample implements Action {

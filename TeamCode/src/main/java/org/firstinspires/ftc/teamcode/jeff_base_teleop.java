@@ -28,6 +28,9 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -42,6 +45,8 @@ public abstract class jeff_base_teleop extends LinearOpMode {
     private DcMotorEx leftBackDrive = null;
     private DcMotorEx rightFrontDrive = null;
     private DcMotorEx rightBackDrive = null;
+    private Boolean ArmFudgeUpButtonPressed = false;
+    private Boolean ArmFudgeDownButtonPressed = false;
 
     public void setAllianceColor(String inAllianceColor) {
         allianceColor = inAllianceColor;
@@ -121,41 +126,26 @@ public abstract class jeff_base_teleop extends LinearOpMode {
             if (gamepad1.left_trigger > 0 && gamepad1.right_trigger > 0) {
                 // prepare to collect (either sample of specimen), from starting position
                 runningActions.add(new SequentialAction(
-                            new ParallelAction(
+                        new ParallelAction(
                                 flag.FlagDown(),
                                 headlight.headlight_On(),
                                 indicatorlight.TurnIndicatorLight_AllianceColor(allianceColor),
                                 bucket.BucketDump(),
                                 gripper.GripperOut()),
-                            new SequentialAction(
+                        new SequentialAction(
                                 new ParallelAction(
-                                    slides.SlidesClearArm(),
-                                    new SequentialAction(
-                                        wrist.WristCollect(),
-                                        new SleepAction(1   )
-                                    )
+                                        slides.SlidesClearArm(),
+                                        new SequentialAction(
+                                                wrist.WristCollect(),
+                                                new SleepAction(1)
+                                        )
                                 ),
                                 arm.ArmPrepareToCollect()),
-                                new SequentialAction(
-                                        bucket.BucketCatch(),
-                                        bucket.BucketOff()),
-                                slides.SlidesDownGround())
-                );
-            } else if (gamepad1.x) {
-                // prepare to collect (either sample of specimen)
-                speed = 1.0;
-                turn_speed = 1.0;
-                runningActions.add(new ParallelAction(
-                        flag.FlagDown(),
-                        headlight.headlight_On(),
                         new SequentialAction(
                                 bucket.BucketCatch(),
                                 bucket.BucketOff()),
-                        gripper.GripperOut(),
-                        slides.SlidesDownGround(),
-                        new SequentialAction(
-                            wrist.WristCollect(),
-                            arm.ArmPrepareToCollect())));
+                        slides.SlidesDownGround())
+                );
             } else if (gamepad1.dpad_down) {
                 // deposit sample to bucket
                 runningActions.add(new ParallelAction(
@@ -171,15 +161,15 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                         )
                 ));
             } else if (gamepad1.dpad_up) {
-                    // Prepare Sample to Score in High Basket
-                    speed = 0.40;
-                    turn_speed = 0.80;
-                    runningActions.add(new ParallelAction(
-                            headlight.headlight_Off(),
-                            new SequentialAction(
-                                    arm.ArmClearBucket(),
-                                    slides.SlidesUpHigh()
-                            )));
+                // Prepare Sample to Score in High Basket
+                speed = 0.40;
+                turn_speed = 0.80;
+                runningActions.add(new ParallelAction(
+                        headlight.headlight_Off(),
+                        new SequentialAction(
+                                arm.ArmClearBucket(),
+                                slides.SlidesUpHigh()
+                        )));
             } else if (gamepad1.right_bumper && gamepad1.dpad_left) {
                 // Prepare to Ascend
                 runningActions.add(
@@ -188,15 +178,14 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                                 wrist.WristDeposit(),
                                 arm.ArmPrepareToAscend(),
                                 bucket.BucketDump()));
-            }
-            else if (gamepad1.right_bumper && gamepad1.dpad_right) {
+            } else if (gamepad1.right_bumper && gamepad1.dpad_right) {
                 // Ascend to Level 2
                 runningActions.add(
                         new SequentialAction(
                                 arm.ArmDownForAscending(),
                                 new ParallelAction(
-                                    slides.SlidesDownGround(),
-                                    arm.ArmCollapsedIntoRobot()))
+                                        slides.SlidesDownGround(),
+                                        arm.ArmCollapsedIntoRobot()))
                 );
             } else if (gamepad1.right_bumper) {
                 // Dump Bucket
@@ -208,25 +197,23 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                 runningActions.add(new SequentialAction(
                         flag.FlagDown()
                 ));
-            }
-            else if (gamepad1.a) {
+            } else if (gamepad1.a) {
                 // Flag Raise / Score
                 runningActions.add(new SequentialAction(
                         flag.FlagScore()
                 ));
-            }
-            else if (gamepad1.left_bumper && gamepad1.b) {
+            } else if (gamepad1.left_bumper && gamepad1.b) {
                 runningActions.add(new ParallelAction(
                         headlight.headlight_Off(),
                         indicatorlight.TurnIndicatorLight_Off()
                 ));
-            }
-            else if (gamepad1.b) {
+            } else if (gamepad1.b) {
                 runningActions.add(new ParallelAction(
                         headlight.headlight_On(),
                         indicatorlight.TurnIndicatorLight_AllianceColor(allianceColor)
                 ));
-            };
+            }
+            ;
 
             // Gamepad 2 Controls
             if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.a) {
@@ -240,31 +227,22 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                         new SleepAction(0.05),
                         headlight.headlight_Off()
                 ));
-            } else if (gamepad2.left_bumper) {
-                    // move slides, using the gamepad2.right_stick_y for desired adjustment
-                    runningActions.add(new SequentialAction(
-                            slides.MoveSlides(-gamepad2.right_stick_y * 200)
-                    ));
-            } else if (gamepad2.right_bumper) {
-                    // move arm, using the gamepad2.right_stick_y for desired adjustment
-                    runningActions.add(new SequentialAction(
-                            arm.MoveArm(gamepad2.right_stick_y * 10)
-                    ));
-            } else if (gamepad2.x) {
-                // prepare to collect (either sample of specimen)
-                speed = 1.0;
-                turn_speed = 1.0;
-                runningActions.add(new ParallelAction(
-                        flag.FlagDown(),
-                        headlight.headlight_On(),
-                        new SequentialAction(
-                                bucket.BucketCatch(),
-                                bucket.BucketOff()),
-                        gripper.GripperOut(),
-                        slides.SlidesDownGround(),
-                        new SequentialAction(
-                                wrist.WristCollect(),
-                                arm.ArmPrepareToCollect())));
+            } else if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.y) {
+                //arm fudge increase
+                if (!ArmFudgeUpButtonPressed){
+                runningActions.add(new SequentialAction(
+                        arm.ArmFudgeUp(),
+                        new SleepAction(0.05)
+                ));}
+                ArmFudgeUpButtonPressed = true;
+            }else if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.x) {
+               if (!ArmFudgeDownButtonPressed){
+                   //arm fudge decrease
+                runningActions.add(new SequentialAction(
+                        arm.ArmFudgeDown(),
+                        new SleepAction(0.05)
+                ));}
+                ArmFudgeDownButtonPressed = true;
             } else if (gamepad2.left_bumper && gamepad2.a) {
                 // collect alliance sample: gripper out to in
                 runningActions.add(new ParallelAction(
@@ -287,19 +265,6 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                                 drivebase.AlignToNeutralSample("VERTICAL"),
                                 wrist.WristCollect(),
                                 arm.ArmCollectSample(),
-                                gripper.GripperIn(),
-                                new SleepAction(0.2),
-                                arm.ArmCollected())
-                ));
-            } else if (gamepad2.b) {
-                // collect specimen
-                runningActions.add(new ParallelAction(
-                        gripper.GripperOut(),
-                        headlight.headlight_On(),
-                        new SequentialAction(
-                                drivebase.AlignToSpecimen(),
-                                wrist.WristCollect(),
-                                arm.ArmCollectSpecimen(),
                                 gripper.GripperIn(),
                                 new SleepAction(0.2),
                                 arm.ArmCollected())
@@ -332,6 +297,44 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                                 gripper.GripperOut(),
                                 new SleepAction(0.2),
                                 wrist.WristDiagonalDown(),
+                                arm.ArmCollected())
+                ));
+            } else if (gamepad2.left_bumper) {
+                // move slides, using the gamepad2.right_stick_y for desired adjustment
+                runningActions.add(new SequentialAction(
+                        slides.MoveSlides(-gamepad2.right_stick_y * 200)
+                ));
+            } else if (gamepad2.right_bumper) {
+                // move arm, using the gamepad2.right_stick_y for desired adjustment
+                runningActions.add(new SequentialAction(
+                        arm.MoveArm(gamepad2.right_stick_y * 10)
+                ));
+            } else if (gamepad2.x) {
+                // prepare to collect (either sample of specimen)
+                speed = 1.0;
+                turn_speed = 1.0;
+                runningActions.add(new ParallelAction(
+                        flag.FlagDown(),
+                        headlight.headlight_On(),
+                        new SequentialAction(
+                                bucket.BucketCatch(),
+                                bucket.BucketOff()),
+                        gripper.GripperOut(),
+                        slides.SlidesDownGround(),
+                        new SequentialAction(
+                                wrist.WristCollect(),
+                                arm.ArmPrepareToCollect())));
+            } else if (gamepad2.b) {
+                // collect specimen
+                runningActions.add(new ParallelAction(
+                        gripper.GripperOut(),
+                        headlight.headlight_On(),
+                        new SequentialAction(
+                                drivebase.AlignToSpecimen(),
+                                wrist.WristCollect(),
+                                arm.ArmCollectSpecimen(),
+                                gripper.GripperIn(),
+                                new SleepAction(0.2),
                                 arm.ArmCollected())
                 ));
             } else if (gamepad2.dpad_left) {
@@ -367,7 +370,14 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                         bucket.BucketOff(),
                         slides.SlidesDownGround())
                 );
-            };
+            }
+            ;
+            if (!(gamepad2.left_bumper&& gamepad2.right_bumper && gamepad2.y)){
+                ArmFudgeUpButtonPressed = false;
+            }
+            if (!(gamepad2.left_bumper&& gamepad2.right_bumper && gamepad2.x)){
+                ArmFudgeDownButtonPressed = false;
+            }
 
             //        //slides not in position
             //        if (getRuntime() >= lastSlideActionTime + SLIDE_STALL_TIME) {
@@ -399,10 +409,34 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                     newActions.add(action);
                 }
             }
+            double ARM_FUDGE = arm.ARM_FUDGE;
+            LLStatus LLStatusTelemetry = drivebase.LLStatus;
+            LLResult LLResultTelemetry = drivebase.LLResult;
             runningActions = newActions;
             dash.sendTelemetryPacket(packet);
-
             // Show the wheel power.
+            if (LLStatusTelemetry!=null){
+            telemetry.addData("Name", "%s",
+                    LLStatusTelemetry.getName());
+            telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
+                    LLStatusTelemetry.getTemp(), LLStatusTelemetry.getCpu(), (int) LLStatusTelemetry.getFps());
+            telemetry.addData("Pipeline", "Index: %d, Type: %s",
+                    LLStatusTelemetry.getPipelineIndex(), LLStatusTelemetry.getPipelineType());
+            } else{
+                telemetry.addData("LimelightStatus ", "Null");
+            }
+            if (LLResultTelemetry!= null){
+                if (LLResultTelemetry.isValid()) {
+                    telemetry.addData("tx", LLResultTelemetry.getTx());
+                    telemetry.addData("ty", LLResultTelemetry.getTy());
+                }else{
+                    telemetry.addData("Limelight", "No data available");
+                }
+            }else{
+                telemetry.addData("LimelightResult", "Null");
+            }
+            telemetry.addData("packet", packet);
+            telemetry.addData("Arm Fudged", ARM_FUDGE );
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();

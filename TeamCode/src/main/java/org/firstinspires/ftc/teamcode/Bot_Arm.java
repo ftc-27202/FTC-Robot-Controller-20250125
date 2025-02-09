@@ -12,27 +12,28 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Config
 public final class Bot_Arm {
-    final double ARM_TICKS_PER_DEGREE =
+    public double ARM_FUDGE = 1.75;
+
+    public double ARM_TICKS_PER_DEGREE =
             28 // number of encoder ticks per rotation of the bare motor
                     * 250047.0 / 4913.0 // This is the exact gear ratio of the 50.9:1 Yellow Jacket gearbox
                     * 100.0 / 20.0 // This is the external gear reduction, a 20T pinion gear that drives a 100T hub-mount gear
                     * 1 / 360.0; // Ticks per degree, not per rotation
-    final double ARM_COLLAPSED_INTO_ROBOT = 0;
-    final double ARM_DOWN_FOR_ASCENDING = 55 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SPECIMEN_BEFORE_SCORE = 68 * ARM_TICKS_PER_DEGREE;
-    final double ARM_DROP_SAMPLE_TO_ZONE = 73 * ARM_TICKS_PER_DEGREE;
-    final double ARM_DEPOSIT = 91 * ARM_TICKS_PER_DEGREE;
-    final double ARM_STRAIGHT_UP = 90 * ARM_TICKS_PER_DEGREE;
-    final double ARM_CLEAR_BUCKET = 100 * ARM_TICKS_PER_DEGREE;
-    final double ARM_PREPARE_TO_ASCEND = 100 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SPECIMEN_AFTER_SCORE = 115 * ARM_TICKS_PER_DEGREE;
-    final double ARM_PREPARE_TO_COLLECT_SPECIMEN_AUTO = 170 * ARM_TICKS_PER_DEGREE;
-    final double ARM_PREPARE_TO_COLLECT = 172 * ARM_TICKS_PER_DEGREE; // almost parallel to the ground, just above specimen's height
-    final double ARM_COLLECTED = ARM_PREPARE_TO_COLLECT;
-    final double ARM_COLLECT_SPECIMEN = 178.5 * ARM_TICKS_PER_DEGREE;
-    final double ARM_SHOVE = 184 * ARM_TICKS_PER_DEGREE;
-    final double ARM_COLLECT_SAMPLE = 184 * ARM_TICKS_PER_DEGREE;
-    //    final double ARM_COLLECT_SPECIMEN = 184 * ARM_TICKS_PER_DEGREE;
+    public double ARM_COLLAPSED_INTO_ROBOT = 0;
+    public double ARM_DOWN_FOR_ASCENDING = (50) * ARM_TICKS_PER_DEGREE;
+    public double ARM_SPECIMEN_BEFORE_SCORE = (68) * ARM_TICKS_PER_DEGREE;
+    public double ARM_DROP_SAMPLE_TO_ZONE = (73) * ARM_TICKS_PER_DEGREE;
+    public double ARM_DEPOSIT = (91) * ARM_TICKS_PER_DEGREE;
+    public double ARM_STRAIGHT_UP = (90) * ARM_TICKS_PER_DEGREE;
+    public double ARM_CLEAR_BUCKET = (100)* ARM_TICKS_PER_DEGREE;
+    public double ARM_PREPARE_TO_ASCEND = (100)* ARM_TICKS_PER_DEGREE;
+    public double ARM_SPECIMEN_AFTER_SCORE = (115) * ARM_TICKS_PER_DEGREE;
+    public double ARM_PREPARE_TO_COLLECT_SPECIMEN_AUTO = (170) * ARM_TICKS_PER_DEGREE;
+    public double ARM_PREPARE_TO_COLLECT = (174) * ARM_TICKS_PER_DEGREE; // almost parallel to the ground, just above specimen's height
+    public double ARM_COLLECTED = ARM_PREPARE_TO_COLLECT;
+    public double ARM_COLLECT_SPECIMEN = (177.5) * ARM_TICKS_PER_DEGREE;
+    public double ARM_SHOVE = (184)* ARM_TICKS_PER_DEGREE;
+    public double ARM_COLLECT_SAMPLE = (184) * ARM_TICKS_PER_DEGREE;
 
     private DcMotorEx armMotor;
     private float desiredAdjustment = 0;
@@ -43,6 +44,40 @@ public final class Bot_Arm {
         armMotor.setTargetPosition((int) ARM_COLLAPSED_INTO_ROBOT);
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         ((DcMotorEx) armMotor).setVelocity(2100);
+    }
+
+    public class ArmFudgeUp implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                initialized = true;
+                ARM_FUDGE = ARM_FUDGE + .25;
+            }
+
+            return false;
+        }
+    }
+
+    public Action ArmFudgeUp() {
+        return new ArmFudgeUp();
+    }
+    public class ArmFudgeDown implements Action {
+        private boolean initialized = false;
+
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (!initialized) {
+                initialized = true;
+                ARM_FUDGE = ARM_FUDGE - .25;
+            }
+
+            return false;
+        }
+    }
+    public Action ArmFudgeDown() {
+        return new ArmFudgeDown();
     }
 
     public class ArmCollectSample implements Action {
@@ -57,8 +92,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos < ARM_COLLECT_SAMPLE - 5) {  // 5 is the buffer to avoid delay
-                armMotor.setTargetPosition((int) ARM_COLLECT_SAMPLE);
+            if (pos < (ARM_COLLECT_SAMPLE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) )- 5) {  // 5 is the buffer to avoid delay
+                armMotor.setTargetPosition((int)((ARM_COLLECT_SAMPLE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -82,8 +117,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos > ARM_COLLECTED) {
-                armMotor.setTargetPosition((int) ARM_COLLECTED);
+            if (pos > ARM_COLLECTED+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_COLLECTED+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -107,8 +142,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos < ARM_SHOVE - 3) {  // 3 is the buffer to avoid delay
-                armMotor.setTargetPosition((int) ARM_SHOVE);
+            if (pos < ARM_SHOVE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE)  - 3) {  // 3 is the buffer to avoid delay
+                armMotor.setTargetPosition((int)((ARM_SHOVE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -126,14 +161,14 @@ public final class Bot_Arm {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
-                armMotor.setPower(0.30);
+                armMotor.setPower(0.20);
                 initialized = true;
             }
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos < ARM_COLLECT_SPECIMEN - 5) {  // 5 is the buffer to avoid delay
-                armMotor.setTargetPosition((int) ARM_COLLECT_SPECIMEN);
+            if (pos < ARM_COLLECT_SPECIMEN+(ARM_FUDGE*ARM_TICKS_PER_DEGREE)  - 5) {  // 5 is the buffer to avoid delay
+                armMotor.setTargetPosition((int)((ARM_COLLECT_SPECIMEN+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -157,8 +192,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos > ARM_DEPOSIT) {
-                armMotor.setTargetPosition((int) ARM_DEPOSIT);
+            if (pos > ARM_DEPOSIT+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_DEPOSIT+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -182,8 +217,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos > ARM_PREPARE_TO_ASCEND) {
-                armMotor.setTargetPosition((int) ARM_PREPARE_TO_ASCEND);
+            if (pos > ARM_PREPARE_TO_ASCEND+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_PREPARE_TO_ASCEND+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -207,8 +242,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos < ARM_CLEAR_BUCKET - 2) {
-                armMotor.setTargetPosition((int) ARM_CLEAR_BUCKET);
+            if (pos < ARM_CLEAR_BUCKET+(ARM_FUDGE*ARM_TICKS_PER_DEGREE)  - 2) {
+                armMotor.setTargetPosition((int)((ARM_CLEAR_BUCKET+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -232,8 +267,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos > ARM_COLLAPSED_INTO_ROBOT) {
-                armMotor.setTargetPosition((int) ARM_COLLAPSED_INTO_ROBOT);
+            if (pos > ARM_COLLAPSED_INTO_ROBOT+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_COLLAPSED_INTO_ROBOT+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -257,8 +292,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos > ARM_DOWN_FOR_ASCENDING) {
-                armMotor.setTargetPosition((int) ARM_DOWN_FOR_ASCENDING);
+            if (pos > ARM_DOWN_FOR_ASCENDING+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_DOWN_FOR_ASCENDING+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -282,8 +317,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos < ARM_PREPARE_TO_COLLECT) {
-                armMotor.setTargetPosition((int) ARM_PREPARE_TO_COLLECT);
+            if (pos < ARM_PREPARE_TO_COLLECT+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_PREPARE_TO_COLLECT+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -307,8 +342,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos < ARM_PREPARE_TO_COLLECT_SPECIMEN_AUTO) {
-                armMotor.setTargetPosition((int) ARM_PREPARE_TO_COLLECT_SPECIMEN_AUTO);
+            if (pos < ARM_PREPARE_TO_COLLECT_SPECIMEN_AUTO+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_PREPARE_TO_COLLECT_SPECIMEN_AUTO+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -332,8 +367,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos < ARM_STRAIGHT_UP) {
-                armMotor.setTargetPosition((int) ARM_STRAIGHT_UP);
+            if (pos < ARM_STRAIGHT_UP+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_STRAIGHT_UP+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -357,8 +392,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos < ARM_SPECIMEN_BEFORE_SCORE) {
-                armMotor.setTargetPosition((int) ARM_SPECIMEN_BEFORE_SCORE);
+            if (pos < ARM_SPECIMEN_BEFORE_SCORE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_SPECIMEN_BEFORE_SCORE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -382,8 +417,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos > ARM_SPECIMEN_BEFORE_SCORE) {
-                armMotor.setTargetPosition((int) ARM_SPECIMEN_BEFORE_SCORE);
+            if (pos > ARM_SPECIMEN_BEFORE_SCORE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_SPECIMEN_BEFORE_SCORE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -407,8 +442,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos < ARM_SPECIMEN_AFTER_SCORE) {
-                armMotor.setTargetPosition((int) ARM_SPECIMEN_AFTER_SCORE);
+            if (pos < ARM_SPECIMEN_AFTER_SCORE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_SPECIMEN_AFTER_SCORE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;
@@ -432,8 +467,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos > ARM_DROP_SAMPLE_TO_ZONE) {
-                armMotor.setTargetPosition((int) ARM_DROP_SAMPLE_TO_ZONE);
+            if (pos > ARM_DROP_SAMPLE_TO_ZONE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
+                armMotor.setTargetPosition((int)((ARM_DROP_SAMPLE_TO_ZONE+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
                 return true;
             } else {
                 return false;

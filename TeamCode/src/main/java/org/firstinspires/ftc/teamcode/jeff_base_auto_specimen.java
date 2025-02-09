@@ -39,13 +39,13 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                 .strafeToSplineHeading(new Vector2d(6, -26), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToSample1 = trajDriveToSubmersible1.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(50, -44), Math.toRadians(90));
+                .strafeToSplineHeading(new Vector2d(50, -43), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToDropSample1 = trajDriveToSample1.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(54, -48), Math.toRadians(120));
+                .strafeToSplineHeading(new Vector2d(44, -42), Math.toRadians(-45));
 
         TrajectoryActionBuilder trajDriveToSpecimen2 = trajDriveToDropSample1.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(31, -43), Math.toRadians(-45));
+                .strafeToSplineHeading(new Vector2d(31, -42), Math.toRadians(-45));
 
         TrajectoryActionBuilder trajDriveToSubmersible2 = trajDriveToSpecimen2.endTrajectory().fresh()
                 .strafeToSplineHeading(new Vector2d(4, -28), Math.toRadians(90));
@@ -135,12 +135,8 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
 
                         // Drive to drop sample 1 to observation zone
                         new SequentialAction(
-                                new ParallelAction(
-                                    actDriveToDropSample1,
-                                    arm.ArmDropSampleToZone(),
-                                    new SequentialAction(
-                                            wrist.WristDeposit(),
-                                            new SleepAction(0.50))),
+                                arm.ArmCollected(),
+                                actDriveToDropSample1,
                                 gripper.GripperOut(),
                                 new SleepAction(0.2)),
 
