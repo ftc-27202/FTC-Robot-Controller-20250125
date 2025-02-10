@@ -36,7 +36,12 @@ public final class Bot_Drivebase {
         LLResult = camera.LimelightResult;
         LLStatus = camera.LimelightStatus;
     }
-
+    public LLResult getCameraResult(){
+        return camera.limelight3A.getLatestResult();
+    }
+    public LLStatus getCameraStatus(){
+        return camera.limelight3A.getStatus();
+    }
     public class AlignToNeutralSample implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {

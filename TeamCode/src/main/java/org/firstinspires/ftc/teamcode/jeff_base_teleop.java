@@ -410,8 +410,8 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                 }
             }
             double ARM_FUDGE = arm.ARM_FUDGE;
-            LLStatus LLStatusTelemetry = drivebase.LLStatus;
-            LLResult LLResultTelemetry = drivebase.LLResult;
+            LLStatus LLStatusTelemetry = drivebase.getCameraStatus();
+            LLResult LLResultTelemetry = drivebase.getCameraResult();
             runningActions = newActions;
             dash.sendTelemetryPacket(packet);
             // Show the wheel power.
