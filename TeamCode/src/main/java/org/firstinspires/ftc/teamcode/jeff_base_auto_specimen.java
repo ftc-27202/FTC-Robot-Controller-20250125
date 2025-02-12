@@ -36,7 +36,7 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         TrajectoryActionBuilder trajDriveToSubmersible1 = drive.actionBuilder(initialPose)
-                .strafeToSplineHeading(new Vector2d(6, -26), Math.toRadians(90));
+                .strafeToSplineHeading(new Vector2d(-2, -26), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToSample1 = trajDriveToSubmersible1.endTrajectory().fresh()
                 .strafeToSplineHeading(new Vector2d(50, -43), Math.toRadians(90));
@@ -45,19 +45,20 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                 .strafeToSplineHeading(new Vector2d(44, -42), Math.toRadians(-45));
 
         TrajectoryActionBuilder trajDriveToSpecimen2 = trajDriveToDropSample1.endTrajectory().fresh()
+                .strafeToSplineHeading(new Vector2d(25, -36), Math.toRadians(-45))
                 .strafeToSplineHeading(new Vector2d(31, -42), Math.toRadians(-45));
 
         TrajectoryActionBuilder trajDriveToSubmersible2 = trajDriveToSpecimen2.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(4, -28), Math.toRadians(90));
+                .strafeToSplineHeading(new Vector2d(2, -28), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToSpecimen3 = trajDriveToSubmersible2.endTrajectory().fresh()
                 .strafeToSplineHeading(new Vector2d(31, -43), Math.toRadians(-45));
 
         TrajectoryActionBuilder trajDriveToSubmersible3 = trajDriveToSpecimen3.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(2, -28), Math.toRadians(90));
+                .strafeToSplineHeading(new Vector2d(6, -28), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToPark = trajDriveToSubmersible3.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(60, -52), Math.toRadians(90));
+                .strafeToSplineHeading(new Vector2d(60, -50), Math.toRadians(90));
 
         while (!isStopRequested() && !opModeIsActive()) {
             telemetry.update();
@@ -107,8 +108,7 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                                         drivebase.MoveBackForSpecimen()),
                                         new SequentialAction(
                                                 bucket.BucketCatch(),
-                                                new SleepAction(0.25),
-                                                bucket.BucketOff()),
+                                                new SleepAction(0.25)),
                                 new SleepAction(0.20),
                                 gripper.GripperOut(),
                                 arm.ArmUpSpecimenBeforeScore()
@@ -211,7 +211,6 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                                         bucket.BucketCatch(),
                                         arm.ArmCollapsedIntoRobot(),
                                         slides.SlidesDownGround()),
-                                bucket.BucketOff(),
                                 headlight.headlight_Off()
                         )
                 )

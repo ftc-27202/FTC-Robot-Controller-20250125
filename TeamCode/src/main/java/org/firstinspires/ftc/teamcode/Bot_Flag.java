@@ -44,4 +44,19 @@ public final class Bot_Flag {
     public Action FlagScore() {
         return new FlagScore();
     }
+
+    public class FlagToggle implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if (flag.getPosition() >= 0.50) {
+                flag.setPosition(FLAG_SCORE);
+            }
+            else flag.setPosition(FLAG_DOWN);
+            return false;
+        }
+    }
+
+    public Action FlagToggle() {
+        return new FlagToggle();
+    }
 }

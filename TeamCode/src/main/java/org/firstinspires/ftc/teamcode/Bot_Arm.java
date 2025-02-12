@@ -46,6 +46,15 @@ public final class Bot_Arm {
         ((DcMotorEx) armMotor).setVelocity(2100);
     }
 
+    public boolean ArmWithinBucketClearance() {
+        double pos = armMotor.getCurrentPosition();
+
+        if (pos > (ARM_DEPOSIT - 3 * ARM_TICKS_PER_DEGREE) && pos < (ARM_DEPOSIT + 3 * ARM_TICKS_PER_DEGREE)) {
+            return false;
+        }
+        else return true;
+    }
+
     public class ArmFudgeUp implements Action {
         private boolean initialized = false;
 

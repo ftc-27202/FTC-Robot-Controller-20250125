@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 @Config
 public final class Bot_Bucket {
-    final double BUCKET_CATCH = 0.43;
-    final double BUCKET_DUMP = 0.0;
+    final double BUCKET_CATCH = 0.70;
+    final double BUCKET_DUMP = 0.10;
 
     private ServoImplEx bucket;
 
@@ -23,7 +23,6 @@ public final class Bot_Bucket {
     public class BucketDump implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            bucket.setPwmEnable();
             bucket.setPosition(BUCKET_DUMP);
             packet.put("BucketPos", bucket.getPosition());
             return false;
@@ -37,7 +36,6 @@ public final class Bot_Bucket {
     public class BucketCatch implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            bucket.setPwmEnable();
             bucket.setPosition(BUCKET_CATCH);
             packet.put("BucketPos", bucket.getPosition());
             return false;
@@ -47,15 +45,5 @@ public final class Bot_Bucket {
     public Action BucketCatch() {
         return new BucketCatch();
     }
-    public class BucketOff implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            bucket.setPwmDisable();
-            return false;
-        }
-    }
 
-    public Action BucketOff() {
-        return new BucketOff();
-    }
 }

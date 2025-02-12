@@ -133,8 +133,7 @@ public class test_vision extends LinearOpMode {
                                         arm.ArmPrepareToCollect())
                         ),
                         headlight.headlight_On(),
-                        slides.SlidesDownGround(),
-                        bucket.BucketOff()));
+                        slides.SlidesDownGround()));
             } else if (gamepad1.left_bumper && gamepad1.a) {
                 runningActions.add(new SequentialAction(
                         drivebase.AlignToAllianceSample("VERTICAL")

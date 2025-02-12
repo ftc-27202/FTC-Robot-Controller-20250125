@@ -62,6 +62,7 @@ public abstract class jeff_base_teleop extends LinearOpMode {
         Bot_Flag flag = new Bot_Flag(hardwareMap);
         Bot_Headlight headlight = new Bot_Headlight(hardwareMap);
         Bot_IndicatorLight indicatorlight = new Bot_IndicatorLight(hardwareMap);
+        Bot_LimelightIndicatorLight limelightIndicatorLight = new Bot_LimelightIndicatorLight(hardwareMap);
         Bot_Drivebase drivebase = new Bot_Drivebase(hardwareMap, allianceColor);
 
         double speed = 1.0;
@@ -123,260 +124,280 @@ public abstract class jeff_base_teleop extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower * speed);
             rightBackDrive.setPower(rightBackPower * speed);
 
-            if (gamepad1.left_trigger > 0 && gamepad1.right_trigger > 0) {
-                // prepare to collect (either sample of specimen), from starting position
-                runningActions.add(new SequentialAction(
-                        new ParallelAction(
-                                flag.FlagDown(),
-                                headlight.headlight_On(),
-                                indicatorlight.TurnIndicatorLight_AllianceColor(allianceColor),
-                                bucket.BucketDump(),
-                                gripper.GripperOut()),
-                        new SequentialAction(
-                                new ParallelAction(
-                                        slides.SlidesClearArm(),
-                                        new SequentialAction(
-                                                wrist.WristCollect(),
-                                                new SleepAction(1)
-                                        )
-                                ),
-                                arm.ArmPrepareToCollect()),
-                        new SequentialAction(
-                                bucket.BucketCatch(),
-                                bucket.BucketOff()),
-                        slides.SlidesDownGround())
-                );
-            } else if (gamepad1.dpad_down) {
-                // deposit sample to bucket
-                runningActions.add(new ParallelAction(
-                        headlight.headlight_Off(),
-                        bucket.BucketCatch(),
-                        wrist.WristDeposit(),
-                        slides.SlidesUpCatch(),
-                        new SequentialAction(
-                                arm.ArmDeposit(),
-                                gripper.GripperOut(),
-                                new SleepAction(0.2),
-                                gripper.GripperIn()
-                        )
-                ));
-            } else if (gamepad1.dpad_up) {
-                // Prepare Sample to Score in High Basket
+            if (slides.SlidesPositionRaisedHigh()) {
                 speed = 0.40;
                 turn_speed = 0.80;
-                runningActions.add(new ParallelAction(
-                        headlight.headlight_Off(),
-                        new SequentialAction(
-                                arm.ArmClearBucket(),
-                                slides.SlidesUpHigh()
-                        )));
-            } else if (gamepad1.right_bumper && gamepad1.dpad_left) {
-                // Prepare to Ascend
-                runningActions.add(
-                        new ParallelAction(
-                                slides.SlidesUpAscend(),
-                                wrist.WristDeposit(),
-                                arm.ArmPrepareToAscend(),
-                                bucket.BucketDump()));
-            } else if (gamepad1.right_bumper && gamepad1.dpad_right) {
-                // Ascend to Level 2
-                runningActions.add(
-                        new SequentialAction(
-                                arm.ArmDownForAscending(),
-                                new ParallelAction(
-                                        slides.SlidesDownGround(),
-                                        arm.ArmCollapsedIntoRobot()))
-                );
-            } else if (gamepad1.right_bumper) {
-                // Dump Bucket
-                runningActions.add(new SequentialAction(
-                        bucket.BucketDump()
-                ));
-            } else if (gamepad1.left_bumper && gamepad1.a) {
-                // Flag Down
-                runningActions.add(new SequentialAction(
-                        flag.FlagDown()
-                ));
-            } else if (gamepad1.a) {
-                // Flag Raise / Score
-                runningActions.add(new SequentialAction(
-                        flag.FlagScore()
-                ));
-            } else if (gamepad1.left_bumper && gamepad1.b) {
-                runningActions.add(new ParallelAction(
-                        headlight.headlight_Off(),
-                        indicatorlight.TurnIndicatorLight_Off()
-                ));
-            } else if (gamepad1.b) {
-                runningActions.add(new ParallelAction(
-                        headlight.headlight_On(),
-                        indicatorlight.TurnIndicatorLight_AllianceColor(allianceColor)
-                ));
             }
-            ;
-
-            // Gamepad 2 Controls
-            if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.a) {
-                // reset slides and arms
-                runningActions.add(new ParallelAction(
-                        slides.ResetSlides(),
-                        arm.ArmReset(),
-                        headlight.headlight_Off(),
-                        new SleepAction(0.05),
-                        headlight.headlight_On(),
-                        new SleepAction(0.05),
-                        headlight.headlight_Off()
-                ));
-            } else if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.y) {
-                //arm fudge increase
-                if (!ArmFudgeUpButtonPressed){
-                runningActions.add(new SequentialAction(
-                        arm.ArmFudgeUp(),
-                        new SleepAction(0.05)
-                ));}
-                ArmFudgeUpButtonPressed = true;
-            }else if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.x) {
-               if (!ArmFudgeDownButtonPressed){
-                   //arm fudge decrease
-                runningActions.add(new SequentialAction(
-                        arm.ArmFudgeDown(),
-                        new SleepAction(0.05)
-                ));}
-                ArmFudgeDownButtonPressed = true;
-            } else if (gamepad2.left_bumper && gamepad2.a) {
-                // collect alliance sample: gripper out to in
-                runningActions.add(new ParallelAction(
-                        gripper.GripperOut(),
-                        headlight.headlight_On(),
-                        new SequentialAction(
-                                drivebase.AlignToAllianceSample("VERTICAL"),
-                                wrist.WristCollect(),
-                                arm.ArmCollectSample(),
-                                gripper.GripperIn(),
-                                new SleepAction(0.2),
-                                arm.ArmCollected())
-                ));
-            } else if (gamepad2.a) {
-                // collect neutral sample: gripper out to in
-                runningActions.add(new ParallelAction(
-                        gripper.GripperOut(),
-                        headlight.headlight_On(),
-                        new SequentialAction(
-                                drivebase.AlignToNeutralSample("VERTICAL"),
-                                wrist.WristCollect(),
-                                arm.ArmCollectSample(),
-                                gripper.GripperIn(),
-                                new SleepAction(0.2),
-                                arm.ArmCollected())
-                ));
-            } else if (gamepad2.left_bumper && gamepad2.y) {
-                // collect alliance sample: gripper in to out
-                runningActions.add(new ParallelAction(
-                        gripper.GripperIn(),
-                        new SleepAction(0.2),
-                        headlight.headlight_On(),
-                        new SequentialAction(
-                                drivebase.AlignToAllianceSample("HORIZONTAL"),
-                                wrist.WristCollect(),
-                                arm.ArmCollectSample(),
-                                gripper.GripperOut(),
-                                new SleepAction(0.2),
-                                wrist.WristDiagonalDown(),
-                                arm.ArmCollected())
-                ));
-            } else if (gamepad2.y) {
-                // collect neutral sample: gripper in to out
-                runningActions.add(new ParallelAction(
-                        gripper.GripperIn(),
-                        new SleepAction(0.2),
-                        headlight.headlight_On(),
-                        new SequentialAction(
-                                drivebase.AlignToNeutralSample("HORIZONTAL"),
-                                wrist.WristCollect(),
-                                arm.ArmCollectSample(),
-                                gripper.GripperOut(),
-                                new SleepAction(0.2),
-                                wrist.WristDiagonalDown(),
-                                arm.ArmCollected())
-                ));
-            } else if (gamepad2.left_bumper) {
-                // move slides, using the gamepad2.right_stick_y for desired adjustment
-                runningActions.add(new SequentialAction(
-                        slides.MoveSlides(-gamepad2.right_stick_y * 200)
-                ));
-            } else if (gamepad2.right_bumper) {
-                // move arm, using the gamepad2.right_stick_y for desired adjustment
-                runningActions.add(new SequentialAction(
-                        arm.MoveArm(gamepad2.right_stick_y * 10)
-                ));
-            } else if (gamepad2.x) {
-                // prepare to collect (either sample of specimen)
+            else {
                 speed = 1.0;
                 turn_speed = 1.0;
-                runningActions.add(new ParallelAction(
-                        flag.FlagDown(),
-                        headlight.headlight_On(),
-                        new SequentialAction(
-                                bucket.BucketCatch(),
-                                bucket.BucketOff()),
-                        gripper.GripperOut(),
-                        slides.SlidesDownGround(),
-                        new SequentialAction(
-                                wrist.WristCollect(),
-                                arm.ArmPrepareToCollect())));
-            } else if (gamepad2.b) {
-                // collect specimen
-                runningActions.add(new ParallelAction(
-                        gripper.GripperOut(),
-                        headlight.headlight_On(),
-                        new SequentialAction(
-                                drivebase.AlignToSpecimen(),
-                                wrist.WristCollect(),
-                                arm.ArmCollectSpecimen(),
-                                gripper.GripperIn(),
-                                new SleepAction(0.2),
-                                arm.ArmCollected())
-                ));
-            } else if (gamepad2.dpad_left) {
-                // Prepare to Score Specimen
-                runningActions.add(new ParallelAction(
-                        slides.SlidesDownGround(),
-                        arm.ArmUpSpecimenBeforeScore()
-                ));
-            } else if (gamepad2.dpad_right) {
-                // Score Specimen
-                runningActions.add(new SequentialAction(
-                        new ParallelAction(
-                                arm.ArmSpecimenAfterScore(),
-                                drivebase.MoveBackForSpecimen()),
-                        new SleepAction(0.20),
-                        gripper.GripperOut()
-                ));
-            } else if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
-                // return to from starting position
-                runningActions.add(new SequentialAction(
-                        new ParallelAction(
-                                flag.FlagDown(),
-                                headlight.headlight_Off(),
-                                bucket.BucketDump(),
-                                gripper.GripperIn()),
-                        new SequentialAction(
+            }
+
+            if (runningActions.size() <= 2) {
+                if (gamepad1.left_trigger > 0 && gamepad1.right_trigger > 0) {
+                    // prepare to collect (either sample of specimen), from starting position
+                    runningActions.add(new SequentialAction(
+                            new ParallelAction(
+                                    flag.FlagDown(),
+                                    headlight.headlight_On(),
+                                    indicatorlight.TurnIndicatorLight_AllianceColor(allianceColor),
+                                    bucket.BucketDump(),
+                                    gripper.GripperOut()),
+                            new SequentialAction(
+                                    new ParallelAction(
+                                            slides.SlidesClearArm(),
+                                            new SequentialAction(
+                                                    wrist.WristCollect(),
+                                                    new SleepAction(1)
+                                            )
+                                    ),
+                                    arm.ArmPrepareToCollect()),
+                            bucket.BucketCatch(),
+                            slides.SlidesDownGround())
+                    );
+                } else if (gamepad1.dpad_down) {
+                    // deposit sample to bucket
+                    runningActions.add(new ParallelAction(
+                            headlight.headlight_Off(),
+                            bucket.BucketCatch(),
+                            wrist.WristDeposit(),
+                            slides.SlidesUpCatch(),
+                            new SequentialAction(
+                                    arm.ArmDeposit(),
+                                    gripper.GripperOut(),
+                                    new SleepAction(0.2),
+                                    gripper.GripperIn()
+                            )
+                    ));
+                } else if (gamepad1.dpad_up) {
+                    // Prepare Sample to Score in High Basket
+                    runningActions.add(new ParallelAction(
+                            headlight.headlight_Off(),
+                            new SequentialAction(
+                                    arm.ArmClearBucket(),
+                                    slides.SlidesUpHigh()
+                            )));
+                } else if (gamepad1.dpad_left) {
+                    // Prepare to Ascend
+                    runningActions.add(
+                            new ParallelAction(
+                                    slides.SlidesUpAscend(),
+                                    wrist.WristDeposit(),
+                                    arm.ArmPrepareToAscend(),
+                                    bucket.BucketDump()));
+                } else if (gamepad1.dpad_right) {
+                    // Ascend to Level 2
+                    runningActions.add(
+                            new SequentialAction(
+                                    arm.ArmDownForAscending(),
+                                    new ParallelAction(
+                                            slides.SlidesDownGround(),
+                                            arm.ArmCollapsedIntoRobot()))
+                    );
+                } else if (gamepad1.right_bumper) {
+                    // Dump Bucket
+                    if (arm.ArmWithinBucketClearance()) {
+                        runningActions.add(new SequentialAction(
+                                bucket.BucketDump()
+                        ));
+                    }
+                } else if (gamepad1.x) {
+                    // prepare to collect (either sample of specimen)
+                    runningActions.add(new ParallelAction(
+                            flag.FlagDown(),
+                            headlight.headlight_On(),
+                            bucket.BucketCatch(),
+                            gripper.GripperOut(),
+                            slides.SlidesDownGround(),
+                            new SequentialAction(
+                                    wrist.WristCollect(),
+                                    arm.ArmPrepareToCollect())));
+                } else if (gamepad1.left_bumper) {
+                    // deposit sample to bucket
+                    // Prepare Sample to Score in High Basket
+                    runningActions.add(new SequentialAction(
                                 new ParallelAction(
-                                        slides.SlidesClearArm(),
-                                        wrist.WristCollect()
-                                ),
-                                arm.ArmCollapsedIntoRobot()),
-                        bucket.BucketCatch(),
-                        bucket.BucketOff(),
-                        slides.SlidesDownGround())
-                );
-            }
-            ;
-            if (!(gamepad2.left_bumper&& gamepad2.right_bumper && gamepad2.y)){
-                ArmFudgeUpButtonPressed = false;
-            }
-            if (!(gamepad2.left_bumper&& gamepad2.right_bumper && gamepad2.x)){
-                ArmFudgeDownButtonPressed = false;
+                                    headlight.headlight_Off(),
+                                    bucket.BucketCatch(),
+                                    wrist.WristDeposit(),
+                                    slides.SlidesUpCatch(),
+                                    new SequentialAction(
+                                            arm.ArmDeposit(),
+                                            gripper.GripperOut(),
+                                            new SleepAction(0.2),
+                                            gripper.GripperIn()
+                                    )),
+                                new SleepAction(0.25),
+                                arm.ArmClearBucket(),
+                                slides.SlidesUpHigh())
+                    );
+                } else if (gamepad1.y) {
+                    // slides down
+                    runningActions.add(new SequentialAction(
+                            slides.SlidesDownGround()));
+                } else if (gamepad1.a) {
+                    // flag down / score toggle
+                    runningActions.add(new SequentialAction(
+                            flag.FlagToggle()));
+                };
+
+                // Gamepad 2 Controls
+                if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.a) {
+                    // reset slides and arms
+                    runningActions.add(new ParallelAction(
+                            slides.ResetSlides(),
+                            arm.ArmReset(),
+                            headlight.headlight_Off(),
+                            new SleepAction(0.05),
+                            headlight.headlight_On(),
+                            new SleepAction(0.05),
+                            headlight.headlight_Off()
+                    ));
+                } else if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.y) {
+                    //arm fudge increase
+                    if (!ArmFudgeUpButtonPressed) {
+                        runningActions.add(new SequentialAction(
+                                arm.ArmFudgeUp()
+                        ));
+                    }
+                    ArmFudgeUpButtonPressed = true;
+                } else if (gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.x) {
+                    if (!ArmFudgeDownButtonPressed) {
+                        //arm fudge decrease
+                        runningActions.add(new SequentialAction(
+                                arm.ArmFudgeDown()
+                        ));
+                    }
+                    ArmFudgeDownButtonPressed = true;
+                } else if (gamepad2.left_bumper && gamepad2.a) {
+                    // collect alliance sample: gripper out to in
+                    runningActions.add(new ParallelAction(
+                            gripper.GripperOut(),
+                            headlight.headlight_On(),
+                            new SequentialAction(
+                                    drivebase.AlignToAllianceSample("VERTICAL"),
+                                    wrist.WristCollect(),
+                                    arm.ArmCollectSample(),
+                                    gripper.GripperIn(),
+                                    new SleepAction(0.2),
+                                    arm.ArmCollected())
+                    ));
+                } else if (gamepad2.a) {
+                    // collect neutral sample: gripper out to in
+                    runningActions.add(new ParallelAction(
+                            gripper.GripperOut(),
+                            headlight.headlight_On(),
+                            new SequentialAction(
+                                    drivebase.AlignToNeutralSample("VERTICAL"),
+                                    wrist.WristCollect(),
+                                    arm.ArmCollectSample(),
+                                    gripper.GripperIn(),
+                                    new SleepAction(0.2),
+                                    arm.ArmCollected())
+                    ));
+                } else if (gamepad2.left_bumper && gamepad2.y) {
+                    // collect alliance sample: gripper in to out
+                    runningActions.add(new ParallelAction(
+                            gripper.GripperIn(),
+                            new SleepAction(0.2),
+                            headlight.headlight_On(),
+                            new SequentialAction(
+                                    drivebase.AlignToAllianceSample("HORIZONTAL"),
+                                    wrist.WristCollect(),
+                                    arm.ArmCollectSample(),
+                                    gripper.GripperOut(),
+                                    new SleepAction(0.2),
+                                    wrist.WristDiagonalDown(),
+                                    arm.ArmCollected())
+                    ));
+                } else if (gamepad2.y) {
+                    // collect neutral sample: gripper in to out
+                    runningActions.add(new ParallelAction(
+                            gripper.GripperIn(),
+                            new SleepAction(0.2),
+                            headlight.headlight_On(),
+                            new SequentialAction(
+                                    drivebase.AlignToNeutralSample("HORIZONTAL"),
+                                    wrist.WristCollect(),
+                                    arm.ArmCollectSample(),
+                                    gripper.GripperOut(),
+                                    new SleepAction(0.2),
+                                    wrist.WristDiagonalDown(),
+                                    arm.ArmCollected())
+                    ));
+                } else if (gamepad2.left_bumper) {
+                    // move slides, using the gamepad2.right_stick_y for desired adjustment
+                    runningActions.add(new SequentialAction(
+                            slides.MoveSlides(-gamepad2.right_stick_y * 200)
+                    ));
+                } else if (gamepad2.right_bumper) {
+                    // move arm, using the gamepad2.right_stick_y for desired adjustment
+                    runningActions.add(new SequentialAction(
+                            arm.MoveArm(gamepad2.right_stick_y * 10)
+                    ));
+                } else if (gamepad2.x) {
+                    // prepare to collect (either sample of specimen)
+                    runningActions.add(new ParallelAction(
+                            flag.FlagDown(),
+                            headlight.headlight_On(),
+                            bucket.BucketCatch(),
+                            gripper.GripperOut(),
+                            slides.SlidesDownGround(),
+                            new SequentialAction(
+                                    wrist.WristCollect(),
+                                    arm.ArmPrepareToCollect())));
+                } else if (gamepad2.b) {
+                    // collect specimen
+                    runningActions.add(new ParallelAction(
+                            gripper.GripperOut(),
+                            headlight.headlight_On(),
+                            new SequentialAction(
+                                    drivebase.AlignToSpecimen(),
+                                    wrist.WristCollect(),
+                                    arm.ArmCollectSpecimen(),
+                                    gripper.GripperIn(),
+                                    new SleepAction(0.2),
+                                    arm.ArmCollected())
+                    ));
+                } else if (gamepad2.dpad_left) {
+                    // Prepare to Score Specimen
+                    runningActions.add(new ParallelAction(
+                            slides.SlidesDownGround(),
+                            arm.ArmUpSpecimenBeforeScore()
+                    ));
+                } else if (gamepad2.dpad_right) {
+                    // Score Specimen
+                    runningActions.add(new SequentialAction(
+                            new ParallelAction(
+                                    arm.ArmSpecimenAfterScore(),
+                                    drivebase.MoveBackForSpecimen()),
+                            new SleepAction(0.20),
+                            gripper.GripperOut()
+                    ));
+                } else if (gamepad2.left_trigger > 0 && gamepad2.right_trigger > 0) {
+                    // return to from starting position
+                    runningActions.add(new SequentialAction(
+                            new ParallelAction(
+                                    flag.FlagDown(),
+                                    headlight.headlight_Off(),
+                                    bucket.BucketDump(),
+                                    gripper.GripperIn()),
+                            new SequentialAction(
+                                    new ParallelAction(
+                                            slides.SlidesClearArm(),
+                                            wrist.WristCollect()),
+                                    arm.ArmCollapsedIntoRobot()),
+                            bucket.BucketCatch(),
+                            slides.SlidesDownGround())
+                    );
+                };
+
+                if (!(gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.y)) {
+                    ArmFudgeUpButtonPressed = false;
+                }
+                if (!(gamepad2.left_bumper && gamepad2.right_bumper && gamepad2.x)) {
+                    ArmFudgeDownButtonPressed = false;
+                }
             }
 
             //        //slides not in position
@@ -409,11 +430,13 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                     newActions.add(action);
                 }
             }
+            runningActions = newActions;
+            dash.sendTelemetryPacket(packet);
+
+
             double ARM_FUDGE = arm.ARM_FUDGE;
             LLStatus LLStatusTelemetry = drivebase.getCameraStatus();
             LLResult LLResultTelemetry = drivebase.getCameraResult();
-            runningActions = newActions;
-            dash.sendTelemetryPacket(packet);
             // Show the wheel power.
             if (LLStatusTelemetry!=null){
             telemetry.addData("Name", "%s",
@@ -424,21 +447,34 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                     LLStatusTelemetry.getPipelineIndex(), LLStatusTelemetry.getPipelineType());
             } else{
                 telemetry.addData("LimelightStatus ", "Null");
+                runningActions.add(new SequentialAction(
+                        limelightIndicatorLight.TurnIndicatorLight_Purple()
+                ));
             }
             if (LLResultTelemetry!= null){
                 if (LLResultTelemetry.isValid()) {
                     telemetry.addData("tx", LLResultTelemetry.getTx());
                     telemetry.addData("ty", LLResultTelemetry.getTy());
+                    runningActions.add(new SequentialAction(
+                            limelightIndicatorLight.TurnIndicatorLight_Green()
+                    ));
+
                 }else{
                     telemetry.addData("Limelight", "No data available");
+                    runningActions.add(new SequentialAction(
+                            limelightIndicatorLight.TurnIndicatorLight_Yellow()
+                    ));
                 }
             }else{
                 telemetry.addData("LimelightResult", "Null");
+                runningActions.add(new SequentialAction(
+                        limelightIndicatorLight.TurnIndicatorLight_Purple()));
             }
             telemetry.addData("packet", packet);
             telemetry.addData("Arm Fudged", ARM_FUDGE );
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+            telemetry.addData("runningActions.size()", runningActions.size());
             telemetry.update();
         }
     }

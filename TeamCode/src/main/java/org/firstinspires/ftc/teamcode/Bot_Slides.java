@@ -62,6 +62,11 @@ public final class Bot_Slides {
         rightSlide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 
+    public boolean SlidesPositionRaisedHigh () {
+        if (leftSlide.getCurrentPosition() >= SLIDE_CLEAR_ARM_AUTO_SPECIMEN) return true;
+        else return false;
+    }
+
     public class SlidesUpHigh implements Action {
         private boolean initialized = false;
 
