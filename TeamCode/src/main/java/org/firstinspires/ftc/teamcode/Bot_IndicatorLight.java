@@ -15,6 +15,7 @@ public final class Bot_IndicatorLight {
     final double INDICATOR_LIGHT_GREEN = 0.5;
     final double INDICATOR_LIGHT_RED = 0.279;
     final double INDICATOR_LIGHT_BLUE = 0.611;
+    private boolean partyMode = false;
 
     private String desiredColor;
 

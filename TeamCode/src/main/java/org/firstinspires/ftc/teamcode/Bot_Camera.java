@@ -1,27 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
 import static android.os.SystemClock.sleep;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
-import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
-import com.acmerobotics.roadrunner.Vector2dDual;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
 import java.util.List;
@@ -33,7 +24,8 @@ public final class Bot_Camera {
     final int LIMELIGHT_PIPELINE_YELLOW_HORIZONTAL_INDEX = 4;
     final int LIMELIGHT_PIPELINE_RED_HORIZONTAL_INDEX = 5;
     final int LIMELIGHT_PIPELINE_BLUE_HORIZONTAL_INDEX = 6;
-    final int LIMELIGHT_PIPELINE_YELLOW_VERTICAL_INDEX = 7;
+//    final int LIMELIGHT_PIPELINE_YELLOW_VERTICAL_INDEX = 7;
+    final int LIMELIGHT_PIPELINE_YELLOW_VERTICAL_INDEX = 0;
     final int LIMELIGHT_PIPELINE_RED_VERTICAL_INDEX = 8;
     final int LIMELIGHT_PIPELINE_BLUE_VERTICAL_INDEX = 9;
     public LLResult LimelightResult;

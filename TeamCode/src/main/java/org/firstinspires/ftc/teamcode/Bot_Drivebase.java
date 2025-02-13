@@ -1,22 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
-import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 
 @Config
 public final class Bot_Drivebase {
@@ -42,6 +36,8 @@ public final class Bot_Drivebase {
     public LLStatus getCameraStatus(){
         return camera.limelight3A.getStatus();
     }
+
+
     public class AlignToNeutralSample implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
@@ -55,7 +51,8 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(crosshair.y, -crosshair.x))
+                            .strafeTo(new Vector2d(0, crosshair.x))
+//                            .strafeTo(new Vector2d(crosshair.y, -crosshair.x))
                             .build()
             );
 

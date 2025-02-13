@@ -33,25 +33,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 //@Disabled
-@TeleOp(name = "Test Gripper", group = "Test")
+@TeleOp(name = "Test Wrist Rotation", group = "Test")
 
-public class test_gripper extends LinearOpMode {
-    final double GRIPPER_IN = 0.3;
-    final double GRIPPER_HALFWAY_OPEN = 0.50;
-    final double GRIPPER_OUT = 0.65;
-//    final double GRIPPER_GRABBING_INWARDS = 0.35;
-//    final double GRIPPER_HALFWAY_OPEN = 0.50;
-//    final double GRIPPER_OUT = 0.65;
+public class test_wristRotation extends LinearOpMode {
+    final double WRIST_ROTATION_VERTICAL_ALIGNMENT = 0.0;
+    final double WRIST_ROTATION_HORIZONTAL_ALIGNMENT = 0.5;
+    private double posRotation = WRIST_ROTATION_VERTICAL_ALIGNMENT;
+    private double posPriorRotation = WRIST_ROTATION_VERTICAL_ALIGNMENT;
 
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
-    private ServoImplEx gripper;
+    private ServoImplEx wristRotation;
 
     @Override
     public void runOpMode() {
-        gripper = hardwareMap.get(ServoImplEx.class, "gripper");
+        wristRotation = hardwareMap.get(ServoImplEx.class, "wristRotation");
         TelemetryPacket packet = new TelemetryPacket();
-
 
         waitForStart();
 
@@ -59,25 +56,38 @@ public class test_gripper extends LinearOpMode {
 
         while (opModeIsActive()) {
             if (gamepad1.a) {
-                gripper.setPosition(GRIPPER_IN);
+                posRotation = WRIST_ROTATION_VERTICAL_ALIGNMENT;
+                posPriorRotation = posRotation;
+                wristRotation.setPosition(WRIST_ROTATION_VERTICAL_ALIGNMENT);
             }
             else if (gamepad1.b) {
-                gripper.setPosition(GRIPPER_HALFWAY_OPEN);
+                posRotation = WRIST_ROTATION_HORIZONTAL_ALIGNMENT;
+                posPriorRotation = posRotation;
+                wristRotation.setPosition(WRIST_ROTATION_HORIZONTAL_ALIGNMENT);
             }
-            else if (gamepad1.y) {
-                gripper.setPosition(GRIPPER_OUT);
-            }
-            else if (gamepad1.left_bumper) {
-                gripper.setPosition(-gamepad1.left_stick_y);
+            else if (gamepad1.right_trigger > 0) {
+                if (posPriorRotation == WRIST_ROTATION_HORIZONTAL_ALIGNMENT) {
+                    posRotation -= gamepad1.right_trigger * 0.001;
+                } else {
+                    posRotation += gamepad1.right_trigger * 0.001;
+                };
+                if (posRotation > WRIST_ROTATION_HORIZONTAL_ALIGNMENT) {
+                    posRotation = WRIST_ROTATION_HORIZONTAL_ALIGNMENT;
+                };
+                if (posRotation < WRIST_ROTATION_VERTICAL_ALIGNMENT){
+                    posRotation = WRIST_ROTATION_VERTICAL_ALIGNMENT;
+                };
+
+                wristRotation.setPosition(posRotation);
             }
 
             telemetry.addData("Status", "Initialized");
-            telemetry.addData("gamepad1.a", "= GRIPPER_IN");
-            telemetry.addData("gamepad1.b", "= GRIPPER_HALFWAY_OPEN");
-            telemetry.addData("gamepad1.y", "= GRIPPER_OUT");
-            telemetry.addData("gamepad1.left_bumper && left_stick_y", "= manual control");
-            telemetry.addData("-gamepad1.left_stick_y", -gamepad1.left_stick_y);
-            telemetry.addData("gripper.getPosition", gripper.getPosition());
+            telemetry.addData("gamepad1.a (vertical)", WRIST_ROTATION_VERTICAL_ALIGNMENT);
+            telemetry.addData("gamepad1.b (horizontal", WRIST_ROTATION_HORIZONTAL_ALIGNMENT);
+            telemetry.addData("gamepad1.right_trigger", "= manual control");
+            telemetry.addData("wristRotation.getPosition", wristRotation.getPosition());
+            telemetry.addData("gamepad1.right_trigger", gamepad1.right_trigger);
+            telemetry.addData("posRotation", posRotation);
             telemetry.update();
         }
     }

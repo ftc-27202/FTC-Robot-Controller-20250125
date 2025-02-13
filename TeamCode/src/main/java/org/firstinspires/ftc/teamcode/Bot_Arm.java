@@ -7,7 +7,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Config
@@ -33,7 +32,7 @@ public final class Bot_Arm {
     public double ARM_COLLECTED = ARM_PREPARE_TO_COLLECT;
     public double ARM_COLLECT_SPECIMEN = (177.5) * ARM_TICKS_PER_DEGREE;
     public double ARM_SHOVE = (184)* ARM_TICKS_PER_DEGREE;
-    public double ARM_COLLECT_SAMPLE = (184) * ARM_TICKS_PER_DEGREE;
+    public double ARM_COLLECT_SAMPLE = (190) * ARM_TICKS_PER_DEGREE;
 
     private DcMotorEx armMotor;
     private float desiredAdjustment = 0;
@@ -45,7 +44,10 @@ public final class Bot_Arm {
         armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         ((DcMotorEx) armMotor).setVelocity(2100);
     }
-
+    public boolean ArmUpForDeposit () {
+        if ((armMotor.getCurrentPosition() <= ARM_DEPOSIT)&&(armMotor.getCurrentPosition() >= ARM_SPECIMEN_BEFORE_SCORE)) return true;
+        else return false;
+    }
     public boolean ArmWithinBucketClearance() {
         double pos = armMotor.getCurrentPosition();
 
@@ -528,7 +530,7 @@ public final class Bot_Arm {
 
     public Action MoveArm(float position) {
         desiredAdjustment = position;
-        return new Bot_Arm.MoveArm();
+        return new MoveArm();
     }
 
 }

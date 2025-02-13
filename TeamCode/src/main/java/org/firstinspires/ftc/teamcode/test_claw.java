@@ -33,23 +33,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 //@Disabled
-@TeleOp(name = "Test Gripper", group = "Test")
+@TeleOp(name = "Test Claw", group = "Test")
 
-public class test_gripper extends LinearOpMode {
-    final double GRIPPER_IN = 0.3;
-    final double GRIPPER_HALFWAY_OPEN = 0.50;
-    final double GRIPPER_OUT = 0.65;
-//    final double GRIPPER_GRABBING_INWARDS = 0.35;
-//    final double GRIPPER_HALFWAY_OPEN = 0.50;
-//    final double GRIPPER_OUT = 0.65;
+public class test_claw extends LinearOpMode {
+    public final double CLAW_OPEN = 0.42;
+    public final double CLAW_CLOSE= 0.02;
 
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
-    private ServoImplEx gripper;
+    private ServoImplEx claw;
 
     @Override
     public void runOpMode() {
-        gripper = hardwareMap.get(ServoImplEx.class, "gripper");
+        claw = hardwareMap.get(ServoImplEx.class, "gripper");
         TelemetryPacket packet = new TelemetryPacket();
 
 
@@ -59,25 +55,21 @@ public class test_gripper extends LinearOpMode {
 
         while (opModeIsActive()) {
             if (gamepad1.a) {
-                gripper.setPosition(GRIPPER_IN);
+                claw.setPosition(CLAW_OPEN);
             }
             else if (gamepad1.b) {
-                gripper.setPosition(GRIPPER_HALFWAY_OPEN);
-            }
-            else if (gamepad1.y) {
-                gripper.setPosition(GRIPPER_OUT);
+                claw.setPosition(CLAW_CLOSE);
             }
             else if (gamepad1.left_bumper) {
-                gripper.setPosition(-gamepad1.left_stick_y);
+                claw.setPosition(-gamepad1.left_stick_y);
             }
 
             telemetry.addData("Status", "Initialized");
-            telemetry.addData("gamepad1.a", "= GRIPPER_IN");
-            telemetry.addData("gamepad1.b", "= GRIPPER_HALFWAY_OPEN");
-            telemetry.addData("gamepad1.y", "= GRIPPER_OUT");
+            telemetry.addData("gamepad1.a", "= CLAW_OPEN");
+            telemetry.addData("gamepad1.b", "= CLAW_CLOSE");
             telemetry.addData("gamepad1.left_bumper && left_stick_y", "= manual control");
             telemetry.addData("-gamepad1.left_stick_y", -gamepad1.left_stick_y);
-            telemetry.addData("gripper.getPosition", gripper.getPosition());
+            telemetry.addData("claw.getPosition", claw.getPosition());
             telemetry.update();
         }
     }

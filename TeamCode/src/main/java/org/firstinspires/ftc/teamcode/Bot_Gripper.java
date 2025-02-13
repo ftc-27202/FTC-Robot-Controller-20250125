@@ -12,9 +12,9 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 @Config
 public final class Bot_Gripper {
     // For physical install, 0.5 = Gripper middle position
-    final double GRIPPER_IN = 0.27;
+    final double GRIPPER_IN = 0.3;
     final double GRIPPER_HALFWAY_OPEN = 0.50;
-    final double GRIPPER_OUT = 0.70;
+    final double GRIPPER_OUT = 0.65;
 
     private ServoImplEx gripper;
 

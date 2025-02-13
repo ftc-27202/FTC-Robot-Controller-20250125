@@ -26,20 +26,22 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
         Bot_Bucket bucket = new Bot_Bucket(hardwareMap);
         Bot_Arm arm = new Bot_Arm(hardwareMap);
         Bot_Wrist wrist = new Bot_Wrist(hardwareMap);
-        Bot_Gripper gripper = new Bot_Gripper(hardwareMap);
+        Bot_Claw claw = new Bot_Claw(hardwareMap);
+        Bot_WristRotation wristRotation = new Bot_WristRotation(hardwareMap);
         Bot_Flag flag = new Bot_Flag(hardwareMap);
         Bot_Headlight headlight = new Bot_Headlight(hardwareMap);
         Bot_IndicatorLight indicatorlight = new Bot_IndicatorLight(hardwareMap);
         Bot_Drivebase drivebase = new Bot_Drivebase(hardwareMap, "NEUTRAL");
         int HighBasketHeading = 45;
-        Vector2d HighBasketVector = new Vector2d(-55, -48);
+//        Vector2d HighBasketVector = new Vector2d(-55, -48);
+        Vector2d HighBasketVector = new Vector2d(-54.5, -47.5);
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         TrajectoryActionBuilder trajDriveToHighBasket = drive.actionBuilder(initialPose)
                 .strafeTo(new Vector2d(-44, -60));
 
         TrajectoryActionBuilder trajDriveToCollectSamplePosition1 = trajDriveToHighBasket.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(-51, -45), Math.toRadians(90));
+                .strafeToSplineHeading(new Vector2d(-50.5, -45), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToHighBasket2 = trajDriveToCollectSamplePosition1.endTrajectory().fresh()
                 .turnTo(Math.toRadians(HighBasketHeading))
@@ -47,7 +49,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
 
         TrajectoryActionBuilder trajDriveToCollectSamplePosition2 = trajDriveToHighBasket2.endTrajectory().fresh()
                 .turnTo(Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(-61, -45), Math.toRadians(90));
+                .splineToConstantHeading(new Vector2d(-60, -45), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToHighBasket3 = trajDriveToCollectSamplePosition2.endTrajectory().fresh()
                 .turnTo(Math.toRadians(HighBasketHeading))
@@ -55,7 +57,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
 
         TrajectoryActionBuilder trajDriveToCollectSamplePosition3 = trajDriveToHighBasket3.endTrajectory().fresh()
                 .turnTo(Math.toRadians(120))
-                .splineToConstantHeading(new Vector2d(-61, -43), Math.toRadians(90));
+                .splineToConstantHeading(new Vector2d(-61, -42), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToHighBasket4 = trajDriveToCollectSamplePosition3.endTrajectory().fresh()
                 .turnTo(Math.toRadians(HighBasketHeading))
@@ -112,12 +114,12 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
                                 headlight.headlight_On(),
                                 slides.SlidesDownCatch(),
                                 actDriveToCollectSamplePosition1,
-                                wrist.WristCollect(),
-                                gripper.GripperOut()
+                                wristRotation.wristRotationVertical(),
+                                claw.ClawOpen()
                         ),
                         drivebase.AlignToNeutralSample("VERTICAL"),
                         arm.ArmCollectSample(),
-                        gripper.GripperIn(),
+                        claw.ClawClose(),
                         new SleepAction(0.2),
                         drivebase.MoveBackToToInitialPose_ForSample(),
                         new ParallelAction(
@@ -130,7 +132,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
                                                 arm.ArmDeposit()
                                         ),
                                         new SequentialAction(
-                                            gripper.GripperOut(),
+                                            claw.ClawOpen(),
                                             new SleepAction(0.2)
                                         ),
                                         arm.ArmClearBucket(),
@@ -147,13 +149,13 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
                                 slides.SlidesDownCatch(),
                                 actDriveToCollectSamplePosition2,
                                 wrist.WristCollect(),
-                                gripper.GripperOut(),
+                                claw.ClawOpen(),
                                 bucket.BucketCatch()
                         )
                         ,
                         drivebase.AlignToNeutralSample("VERTICAL"),
                         arm.ArmCollectSample(),
-                        gripper.GripperIn(),
+                        claw.ClawClose(),
                         new SleepAction(0.2),
                         drivebase.MoveBackToToInitialPose_ForSample(),
                         new ParallelAction(
@@ -165,7 +167,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
                                                 arm.ArmDeposit()
                                         ),
                                         new SequentialAction(
-                                                gripper.GripperOut(),
+                                                claw.ClawOpen(),
                                                 new SleepAction(0.2)
                                         ),
                                         arm.ArmClearBucket(),
@@ -182,13 +184,15 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
                                 slides.SlidesDownCatch(),
                                 actDriveToCollectSamplePosition3,
                                 wrist.WristCollect(),
-                                gripper.GripperOut(),
-                                bucket.BucketCatch()
+                                claw.ClawOpen(),
+                                bucket.BucketCatch(),
+                                wristRotation.wristRotationAutoSample()
                         ),
                         drivebase.AlignToNeutralSample("VERTICAL"),
                         arm.ArmCollectSample(),
-                        gripper.GripperIn(),
+                        claw.ClawClose(),
                         new SleepAction(0.2),
+                        wristRotation.wristRotationAutoSample(),
                         drivebase.MoveBackToToInitialPose_ForSample(),
                         new ParallelAction(
                                 actDriveToHighBasket4,
@@ -199,7 +203,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
                                                 arm.ArmDeposit()
                                         ),
                                         new SequentialAction(
-                                                gripper.GripperOut(),
+                                                claw.ClawOpen(),
                                                 new SleepAction(0.2)
                                         ),
                                         arm.ArmClearBucket(),
@@ -216,7 +220,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
                             flag.FlagScore(),
                             new SequentialAction(
                                     wrist.WristCollect(),
-                                    gripper.GripperIn(),
+                                    claw.ClawClose(),
                                     new SleepAction(0.2),
                                     arm.ArmCollapsedIntoRobot(),
                                     slides.SlidesDownGround()
