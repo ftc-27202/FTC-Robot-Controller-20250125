@@ -11,10 +11,16 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 @Config
 public final class Bot_WristRotation {
     // For physical install,
-    final double WRIST_ROTATION_VERTICAL_ALIGNMENT = 0.0;
-    final double WRIST_ROTATION_HORIZONTAL_ALIGNMENT = 0.5;
-    final double WRIST_ROTATION_SPECIMEN = 1.0;
-    final double WRIST_ROTATION_AUTO_SAMPLE_3 = 0.90;
+    final double WRIST_ROTATION_VERTICAL_ALIGNMENT = 0.98;
+    final double WRIST_ROTATION_HORIZONTAL_ALIGNMENT = 0.60;
+    final double WRIST_ROTATION_SPECIMEN = 0.20;
+    final double WRIST_ROTATION_AUTO_SAMPLE_3 = 0.85;
+
+//    before Feb 14, 2025
+//    final double WRIST_ROTATION_VERTICAL_ALIGNMENT = 0.0;
+//    final double WRIST_ROTATION_HORIZONTAL_ALIGNMENT = 0.5;
+//    final double WRIST_ROTATION_SPECIMEN = 1.0;
+//    final double WRIST_ROTATION_AUTO_SAMPLE_3 = 0.90;
 
     private double inTriggerValue = 0.0;
     private double posRotation = WRIST_ROTATION_HORIZONTAL_ALIGNMENT;
@@ -86,13 +92,13 @@ public final class Bot_WristRotation {
     public class wristRotateManually implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            if (posPriorRotation == WRIST_ROTATION_HORIZONTAL_ALIGNMENT) {
+            if (posPriorRotation == WRIST_ROTATION_SPECIMEN) {
                 posRotation -= inTriggerValue * 0.0017;
             } else {
                 posRotation += inTriggerValue * 0.0017;
             };
-            if (posRotation > WRIST_ROTATION_HORIZONTAL_ALIGNMENT) {
-                posRotation = WRIST_ROTATION_HORIZONTAL_ALIGNMENT;
+            if (posRotation > WRIST_ROTATION_SPECIMEN) {
+                posRotation = WRIST_ROTATION_SPECIMEN;
                 posPriorRotation = posRotation;
             };
             if (posRotation < WRIST_ROTATION_VERTICAL_ALIGNMENT){

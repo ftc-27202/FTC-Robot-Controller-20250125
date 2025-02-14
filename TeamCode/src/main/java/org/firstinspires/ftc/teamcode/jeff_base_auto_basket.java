@@ -38,10 +38,10 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         TrajectoryActionBuilder trajDriveToHighBasket = drive.actionBuilder(initialPose)
-                .strafeTo(new Vector2d(-44, -60));
+                .strafeTo(new Vector2d(-43, -60));
 
         TrajectoryActionBuilder trajDriveToCollectSamplePosition1 = trajDriveToHighBasket.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(-50.5, -45), Math.toRadians(90));
+                .strafeToSplineHeading(new Vector2d(-50.5, -44), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToHighBasket2 = trajDriveToCollectSamplePosition1.endTrajectory().fresh()
                 .turnTo(Math.toRadians(HighBasketHeading))
@@ -49,7 +49,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
 
         TrajectoryActionBuilder trajDriveToCollectSamplePosition2 = trajDriveToHighBasket2.endTrajectory().fresh()
                 .turnTo(Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(-60, -45), Math.toRadians(90));
+                .splineToConstantHeading(new Vector2d(-60.5, -44), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToHighBasket3 = trajDriveToCollectSamplePosition2.endTrajectory().fresh()
                 .turnTo(Math.toRadians(HighBasketHeading))
@@ -57,7 +57,7 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
 
         TrajectoryActionBuilder trajDriveToCollectSamplePosition3 = trajDriveToHighBasket3.endTrajectory().fresh()
                 .turnTo(Math.toRadians(120))
-                .splineToConstantHeading(new Vector2d(-61, -42), Math.toRadians(90));
+                .splineToConstantHeading(new Vector2d(-61, -43), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToHighBasket4 = trajDriveToCollectSamplePosition3.endTrajectory().fresh()
                 .turnTo(Math.toRadians(HighBasketHeading))
@@ -151,8 +151,8 @@ public abstract class jeff_base_auto_basket extends LinearOpMode {
                                 wrist.WristCollect(),
                                 claw.ClawOpen(),
                                 bucket.BucketCatch()
-                        )
-                        ,
+                        ),
+
                         drivebase.AlignToNeutralSample("VERTICAL"),
                         arm.ArmCollectSample(),
                         claw.ClawClose(),

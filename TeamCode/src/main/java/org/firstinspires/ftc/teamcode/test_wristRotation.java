@@ -36,8 +36,13 @@ import java.util.List;
 @TeleOp(name = "Test Wrist Rotation", group = "Test")
 
 public class test_wristRotation extends LinearOpMode {
-    final double WRIST_ROTATION_VERTICAL_ALIGNMENT = 0.0;
-    final double WRIST_ROTATION_HORIZONTAL_ALIGNMENT = 0.5;
+    final double WRIST_ROTATION_VERTICAL_ALIGNMENT = 0.98;
+    final double WRIST_ROTATION_HORIZONTAL_ALIGNMENT = 0.60;
+    final double WRIST_ROTATION_SPECIMEN = 0.20;
+    final double WRIST_ROTATION_AUTO_SAMPLE_3 = 0.85;
+
+//    final double WRIST_ROTATION_VERTICAL_ALIGNMENT = 0.0;
+//    final double WRIST_ROTATION_HORIZONTAL_ALIGNMENT = 0.5;
     private double posRotation = WRIST_ROTATION_VERTICAL_ALIGNMENT;
     private double posPriorRotation = WRIST_ROTATION_VERTICAL_ALIGNMENT;
 
@@ -59,17 +64,19 @@ public class test_wristRotation extends LinearOpMode {
                 posRotation = WRIST_ROTATION_VERTICAL_ALIGNMENT;
                 posPriorRotation = posRotation;
                 wristRotation.setPosition(WRIST_ROTATION_VERTICAL_ALIGNMENT);
-            }
-            else if (gamepad1.b) {
+            } else if (gamepad1.b) {
                 posRotation = WRIST_ROTATION_HORIZONTAL_ALIGNMENT;
                 posPriorRotation = posRotation;
                 wristRotation.setPosition(WRIST_ROTATION_HORIZONTAL_ALIGNMENT);
-            }
-            else if (gamepad1.right_trigger > 0) {
+            } else if (gamepad1.x) {
+                wristRotation.setPosition(WRIST_ROTATION_SPECIMEN);
+            } else if (gamepad1.y) {
+                wristRotation.setPosition(WRIST_ROTATION_AUTO_SAMPLE_3);
+            } else if (gamepad1.right_trigger > 0) {
                 if (posPriorRotation == WRIST_ROTATION_HORIZONTAL_ALIGNMENT) {
-                    posRotation -= gamepad1.right_trigger * 0.001;
+                    posRotation -= gamepad1.right_trigger * 0.0017;
                 } else {
-                    posRotation += gamepad1.right_trigger * 0.001;
+                    posRotation += gamepad1.right_trigger * 0.0017;
                 };
                 if (posRotation > WRIST_ROTATION_HORIZONTAL_ALIGNMENT) {
                     posRotation = WRIST_ROTATION_HORIZONTAL_ALIGNMENT;
@@ -84,6 +91,8 @@ public class test_wristRotation extends LinearOpMode {
             telemetry.addData("Status", "Initialized");
             telemetry.addData("gamepad1.a (vertical)", WRIST_ROTATION_VERTICAL_ALIGNMENT);
             telemetry.addData("gamepad1.b (horizontal", WRIST_ROTATION_HORIZONTAL_ALIGNMENT);
+            telemetry.addData("gamepad1.x (WRIST_ROTATION_SPECIMEN)", WRIST_ROTATION_SPECIMEN);
+            telemetry.addData("gamepad1.y (WRIST_ROTATION_AUTO_SAMPLE_3", WRIST_ROTATION_AUTO_SAMPLE_3);
             telemetry.addData("gamepad1.right_trigger", "= manual control");
             telemetry.addData("wristRotation.getPosition", wristRotation.getPosition());
             telemetry.addData("gamepad1.right_trigger", gamepad1.right_trigger);

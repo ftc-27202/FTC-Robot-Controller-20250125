@@ -28,7 +28,8 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
         Bot_Bucket bucket = new Bot_Bucket(hardwareMap);
         Bot_Arm arm = new Bot_Arm(hardwareMap);
         Bot_Wrist wrist = new Bot_Wrist(hardwareMap);
-        Bot_Gripper gripper = new Bot_Gripper(hardwareMap);
+        Bot_Claw claw = new Bot_Claw(hardwareMap);
+        Bot_WristRotation wristRotation = new Bot_WristRotation(hardwareMap);
         Bot_Flag flag = new Bot_Flag(hardwareMap);
         Bot_Headlight headlight = new Bot_Headlight(hardwareMap);
         Bot_IndicatorLight indicatorlight = new Bot_IndicatorLight(hardwareMap);
@@ -39,20 +40,20 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                 .strafeToSplineHeading(new Vector2d(-2, -26), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToSample1 = trajDriveToSubmersible1.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(50, -43), Math.toRadians(90));
+                .strafeToSplineHeading(new Vector2d(52, -42), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToDropSample1 = trajDriveToSample1.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(44, -42), Math.toRadians(-45));
+                .strafeToSplineHeading(new Vector2d(48, -40), Math.toRadians(-60));
 
         TrajectoryActionBuilder trajDriveToSpecimen2 = trajDriveToDropSample1.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(25, -36), Math.toRadians(-45))
-                .strafeToSplineHeading(new Vector2d(31, -42), Math.toRadians(-45));
+                .strafeToSplineHeading(new Vector2d(26, -54), Math.toRadians(0))
+                .strafeToSplineHeading(new Vector2d(30, -54), Math.toRadians(0));
 
         TrajectoryActionBuilder trajDriveToSubmersible2 = trajDriveToSpecimen2.endTrajectory().fresh()
                 .strafeToSplineHeading(new Vector2d(2, -28), Math.toRadians(90));
 
         TrajectoryActionBuilder trajDriveToSpecimen3 = trajDriveToSubmersible2.endTrajectory().fresh()
-                .strafeToSplineHeading(new Vector2d(31, -43), Math.toRadians(-45));
+                .strafeToSplineHeading(new Vector2d(30, -54), Math.toRadians(0));
 
         TrajectoryActionBuilder trajDriveToSubmersible3 = trajDriveToSpecimen3.endTrajectory().fresh()
                 .strafeToSplineHeading(new Vector2d(6, -28), Math.toRadians(90));
@@ -85,10 +86,12 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                                 headlight.headlight_Off(),
                                 indicatorlight.TurnIndicatorLight_AllianceColor(allianceColor),
                                 flag.FlagDown(),
-                                wrist.WristCollect(),
-                                new SleepAction(0.2),
+                                new SequentialAction(
+                                    wrist.WristCollect(),
+                                    new SleepAction(0.30)),
                                 bucket.BucketDump(),
-                                gripper.GripperIn()
+                                wristRotation.wristRotationSpecimen(),
+                                claw.ClawCloseSpecimenToScore()
                         ),
 
                         // Score Preloaded Specimen: Before
@@ -96,6 +99,7 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                                 actDriveToSubmersible1,
                                 new SequentialAction(
                                     slides.SlidesClearArm(),
+                                    wristRotation.wristRotationSpecimen(),
                                     arm.ArmDownSpecimenBeforeScore(),
                                     slides.SlidesDownGround()
                                 )
@@ -103,20 +107,19 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
 
                         // Score Preloaded Specimen: After
                         new SequentialAction(
+                                claw.ClawCloseSpecimenToSlide(),
                                 new ParallelAction(
                                         arm.ArmSpecimenAfterScore(),
                                         drivebase.MoveBackForSpecimen()),
-                                        new SequentialAction(
-                                                bucket.BucketCatch(),
-                                                new SleepAction(0.25)),
-                                new SleepAction(0.20),
-                                gripper.GripperOut(),
+                                new SleepAction(0.30),
+                                claw.ClawOpen(),
+                                wristRotation.wristRotationVertical(),
                                 arm.ArmUpSpecimenBeforeScore()
                         ),
 
                         // Drive to collect sample 1 from mat
                         new ParallelAction(
-                                gripper.GripperOut(),
+                                claw.ClawOpen(),
                                 headlight.headlight_On(),
                                 wrist.WristCollect(),
                                 new SequentialAction(
@@ -127,7 +130,7 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                                                 arm.ArmPrepareToCollectSpecimenAuto())),
                                         drivebase.AlignToAllianceSample("VERTICAL"),
                                         arm.ArmCollectSample(),
-                                        gripper.GripperIn(),
+                                        claw.ClawClose(),
                                         new SleepAction(0.2),
                                         drivebase.MoveBackToToInitialPose_ForSample()
                                 )
@@ -135,9 +138,10 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
 
                         // Drive to drop sample 1 to observation zone
                         new SequentialAction(
+                        bucket.BucketInitial(),
                                 arm.ArmCollected(),
                                 actDriveToDropSample1,
-                                gripper.GripperOut(),
+                                claw.ClawOpen(),
                                 new SleepAction(0.2)),
 
                         // Drive to collect specimen 2 from mat
@@ -145,28 +149,28 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                                 new ParallelAction(
                                     actDriveToSpecimen2,
                                     arm.ArmPrepareToCollectSpecimenAuto(),
-                                    wrist.WristCollect(),
-                                    gripper.GripperOut()),
+                                    wrist.WristCollect()),
                                 drivebase.AlignToSpecimen(),
-                                arm.ArmCollectSpecimen(),
-                                gripper.GripperIn(),
+                                arm.ArmCollectSample(),
+                                claw.ClawClose(),
                                 new SleepAction(0.2),
-                                drivebase.MoveBackToToInitialPose_ForSpecimen()
-                        ),
+                                drivebase.MoveBackToToInitialPose_ForSpecimen()),
 
                         // Score specimen 2: Before
                         new ParallelAction(
                                 actDriveToSubmersible2,
-                                arm.ArmUpSpecimenBeforeScore()
-                        ),
+                                claw.ClawCloseSpecimenToScore(),
+                                wristRotation.wristRotationSpecimen(),
+                                arm.ArmUpSpecimenBeforeScore()),
 
                         // Score specimen 2: After
                         new SequentialAction(
+                                claw.ClawCloseSpecimenToSlide(),
                                 new ParallelAction(
                                         arm.ArmSpecimenAfterScore(),
                                         drivebase.MoveBackForSpecimen()),
-                                new SleepAction(0.20),
-                                gripper.GripperOut(),
+                                new SleepAction(0.30),
+                                claw.ClawOpen(),
                                 arm.ArmUpSpecimenBeforeScore()
                         ),
 
@@ -177,11 +181,12 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                                         new SequentialAction(
                                                 new SleepAction(1.5),
                                                 arm.ArmPrepareToCollectSpecimenAuto()),
+                                        wristRotation.wristRotationVertical(),
                                         wrist.WristCollect(),
-                                        gripper.GripperOut()),
+                                        claw.ClawOpen()),
                                 drivebase.AlignToSpecimen(),
-                                arm.ArmCollectSpecimen(),
-                                gripper.GripperIn(),
+                                arm.ArmCollectSample(),
+                                claw.ClawClose(),
                                 new SleepAction(0.2),
                                 drivebase.MoveBackToToInitialPose_ForSpecimen()
                         ),
@@ -189,23 +194,25 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                         // Score specimen 3: Before
                         new ParallelAction(
                                 actDriveToSubmersible3,
-                                arm.ArmUpSpecimenBeforeScore()
-                        ),
+                                claw.ClawCloseSpecimenToScore(),
+                                wristRotation.wristRotationSpecimen(),
+                                arm.ArmUpSpecimenBeforeScore()),
 
                         // Score specimen 3: After
                         new SequentialAction(
+                                claw.ClawCloseSpecimenToSlide(),
                                 new ParallelAction(
                                         arm.ArmSpecimenAfterScore(),
-                                        drivebase.MoveBackForSpecimen()
-                                ),
-                                new SleepAction(0.20),
-                                gripper.GripperOut(),
+                                        drivebase.MoveBackForSpecimen()),
+                                new SleepAction(0.30),
+                                claw.ClawOpen(),
                                 arm.ArmUpSpecimenBeforeScore()
                         ),
 
                         // Park and Robot to Initial Position
                         new ParallelAction(
                                 actDriveToPark,
+                                wristRotation.wristRotationVertical(),
                                 new SequentialAction(
                                         slides.SlidesClearArmAutoSpecimen(),
                                         bucket.BucketCatch(),

@@ -12,9 +12,15 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 @Config
 public final class Bot_Claw {
     // For physical install, ???
-    public final double CLAW_OPEN = 0.42;
-    public final double CLAW_CLOSE= 0.02;
-    public final double CLAW_CLOSE_FOR_SPECIMEN = 0.06;
+    public final double CLAW_OPEN = 0.53;
+    public final double CLAW_CLOSE= 0.15;
+    public final double CLAW_CLOSE_FOR_SPECIMEN = 0.17;
+    public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SCORE = 0.22;
+    public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SLIDE = 0.22;
+
+//    public final double CLAW_OPEN = 0.53;
+//    public final double CLAW_CLOSE= 0.15;
+//    public final double CLAW_CLOSE_FOR_SPECIMEN = 0.17;
 
     private ServoImplEx claw;
 
@@ -46,6 +52,32 @@ public final class Bot_Claw {
 
     public Action ClawCloseSpecimen() {
         return new ClawCloseSpecimen();
+    }
+
+    public class ClawCloseSpecimenToScore implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            claw.setPosition(CLAW_CLOSE_FOR_SPECIMEN_TO_SCORE);
+            packet.put("ClawPos", claw.getPosition());
+            return false;
+        }
+    }
+
+    public Action ClawCloseSpecimenToScore() {
+        return new ClawCloseSpecimenToScore();
+    }
+
+    public class ClawCloseSpecimenToSlide implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            claw.setPosition(CLAW_CLOSE_FOR_SPECIMEN_TO_SLIDE);
+            packet.put("ClawPos", claw.getPosition());
+            return false;
+        }
+    }
+
+    public Action ClawCloseSpecimenToSlide() {
+        return new ClawCloseSpecimenToSlide();
     }
 
     public class ClawOpen implements Action {

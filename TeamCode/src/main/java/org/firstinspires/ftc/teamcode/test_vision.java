@@ -120,7 +120,6 @@ public class test_vision extends LinearOpMode {
             rightFrontDrive.setPower(rightFrontPower * speed);
             leftBackDrive.setPower(leftBackPower * speed);
             rightBackDrive.setPower(rightBackPower * speed);
-
             if (gamepad1.x) {
                 runningActions.add(new SequentialAction(
                         new ParallelAction(

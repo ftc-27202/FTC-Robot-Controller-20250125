@@ -19,15 +19,15 @@ import java.util.List;
 
 @Config
 public final class Bot_Camera {
-    final int LIMELIGHT_PIPELINE_RED_SPECIMEN_INDEX = 2;
+    final int LIMELIGHT_PIPELINE_RED_SPECIMEN_INDEX = 4;
     final int LIMELIGHT_PIPELINE_BLUE_SPECIMEN_INDEX = 3;
-    final int LIMELIGHT_PIPELINE_YELLOW_HORIZONTAL_INDEX = 4;
-    final int LIMELIGHT_PIPELINE_RED_HORIZONTAL_INDEX = 5;
-    final int LIMELIGHT_PIPELINE_BLUE_HORIZONTAL_INDEX = 6;
+    final int LIMELIGHT_PIPELINE_YELLOW_HORIZONTAL_INDEX = 0;
+    final int LIMELIGHT_PIPELINE_RED_HORIZONTAL_INDEX = 1;
+    final int LIMELIGHT_PIPELINE_BLUE_HORIZONTAL_INDEX = 2;
 //    final int LIMELIGHT_PIPELINE_YELLOW_VERTICAL_INDEX = 7;
     final int LIMELIGHT_PIPELINE_YELLOW_VERTICAL_INDEX = 0;
-    final int LIMELIGHT_PIPELINE_RED_VERTICAL_INDEX = 8;
-    final int LIMELIGHT_PIPELINE_BLUE_VERTICAL_INDEX = 9;
+    final int LIMELIGHT_PIPELINE_RED_VERTICAL_INDEX = 1;
+    final int LIMELIGHT_PIPELINE_BLUE_VERTICAL_INDEX = 2;
     public LLResult LimelightResult;
     public LLStatus LimelightStatus;
     public static class Params {
@@ -135,7 +135,7 @@ public final class Bot_Camera {
             telemetry.update();
         }
 
-        crosshair = new Vector2d(crosshair_x, crosshair_y);
+        crosshair = new Vector2d(crosshair_x, 0);
         return crosshair;
     }
 }

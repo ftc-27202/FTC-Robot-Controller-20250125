@@ -77,7 +77,7 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(crosshair.y, -crosshair.x))
+                            .strafeTo(new Vector2d(0, crosshair.x))
                             .build()
             );
 
@@ -103,7 +103,7 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(crosshair.y, -(crosshair.x)))
+                            .strafeTo(new Vector2d(0, crosshair.x))
                             .build()
             );
 
@@ -121,7 +121,7 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(-crosshair.y, crosshair.x))
+                            .strafeTo(new Vector2d(0, -crosshair.x))
                             .build()
             );
             return false;
@@ -139,7 +139,7 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(-crosshair.y, crosshair.x))
+                            .strafeTo(new Vector2d(0, -crosshair.x))
                             .build()
             );
             return false;
@@ -177,7 +177,7 @@ public final class Bot_Drivebase {
 
             Actions.runBlocking(
                     bot.actionBuilder(new Pose2d(0, 0, 0))
-                            .strafeTo(new Vector2d(10, 0))
+                            .strafeTo(new Vector2d(6, 0))
                             .build()
             );
 

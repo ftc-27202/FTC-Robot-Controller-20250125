@@ -94,8 +94,8 @@ public abstract class jeff_base_teleop extends LinearOpMode {
 
         while (opModeIsActive()) {
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            axial = -gamepad1.left_stick_y + -(gamepad2.left_stick_y * 0.5);  // Note: pushing stick forward gives negative value
-            lateral = gamepad1.left_stick_x + (gamepad2.left_stick_x * 0.5);
+            axial = -gamepad1.left_stick_y + -(gamepad2.left_stick_y * 0.65);  // Note: pushing stick forward gives negative value
+            lateral = gamepad1.left_stick_x + (gamepad2.left_stick_x * 0.65);
             yaw = (gamepad1.right_stick_x + (gamepad2.right_stick_x * 0.5)) * turn_speed;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
@@ -134,7 +134,7 @@ public abstract class jeff_base_teleop extends LinearOpMode {
 //            }
 
 
-            if (runningActions.size() <= 2) {
+            if (runningActions.size() <= 3) {
                 if (gamepad1.left_trigger > 0 && gamepad1.right_trigger > 0) {
                     // prepare to collect (either sample of specimen), from starting position
                     runningActions.add(new SequentialAction(
@@ -178,6 +178,8 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                     ));
                 } else if (gamepad1.dpad_up) {
                     // Prepare Sample to Score in High Basket
+                    speed = 0.40;
+                    turn_speed = 0.80;
                     runningActions.add(new ParallelAction(
                             headlight.headlight_Off(),
                             new SequentialAction(
@@ -333,6 +335,7 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                             headlight.headlight_On(),
                             new SequentialAction(
 //                                    drivebase.AlignToNeutralSample("VERTICAL"),
+                                    wristRotation.wristRotationVertical(),
                                     wrist.WristCollect(),
                                     arm.ArmCollectSample(),
                                     claw.ClawCloseSpecimen(),
@@ -342,17 +345,20 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                 } else if (gamepad2.dpad_left) {
                     // Prepare to Score Specimen
                     runningActions.add(new ParallelAction(
+                            bucket.BucketInitial(),
                             slides.SlidesDownGround(),
                             wristRotation.wristRotationSpecimen(),
-                            arm.ArmUpSpecimenBeforeScore()
+                            arm.ArmUpSpecimenBeforeScore(),
+                            claw.ClawCloseSpecimenToScore()
                     ));
                 } else if (gamepad2.dpad_right) {
                     // Score Specimen
                     runningActions.add(new SequentialAction(
+                            claw.ClawCloseSpecimenToScore(),
                             new ParallelAction(
                                     arm.ArmSpecimenAfterScore(),
                                     drivebase.MoveBackForSpecimen()),
-                            new SleepAction(0.05),
+                            new SleepAction(0.30),
                             claw.ClawOpen(),
                             wristRotation.wristRotationVertical()
                     ));
@@ -368,7 +374,7 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                                     new ParallelAction(
                                             slides.SlidesClearArm(),
                                             wrist.WristCollect()),
-                                    arm.ArmCollapsedIntoRobot()),
+                            arm.ArmCollapsedIntoRobot()),
                             bucket.BucketCatch(),
                             slides.SlidesDownGround())
                     ));

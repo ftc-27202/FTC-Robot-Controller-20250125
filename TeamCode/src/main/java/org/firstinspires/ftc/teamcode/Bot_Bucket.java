@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 @Config
 public final class Bot_Bucket {
+    final double BUCKET_INITIAL = 0.85;
     final double BUCKET_CATCH = 0.70;
     final double BUCKET_DUMP = 0.10;
 
@@ -46,4 +47,16 @@ public final class Bot_Bucket {
         return new BucketCatch();
     }
 
+    public class BucketInitial implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            bucket.setPosition(BUCKET_INITIAL);
+            packet.put("BucketPos", bucket.getPosition());
+            return false;
+        }
+    }
+
+    public Action BucketInitial() {
+        return new BucketInitial();
+    }
 }

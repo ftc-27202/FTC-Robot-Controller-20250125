@@ -27,6 +27,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import java.util.ArrayList;
@@ -36,8 +37,9 @@ import java.util.List;
 @TeleOp(name = "Test Claw", group = "Test")
 
 public class test_claw extends LinearOpMode {
-    public final double CLAW_OPEN = 0.42;
-    public final double CLAW_CLOSE= 0.02;
+    public final double CLAW_OPEN = 0.53;
+    public final double CLAW_CLOSE= 0.15;
+    public final double CLAW_CLOSE_FOR_SPECIMEN = 0.17;
 
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();
@@ -60,6 +62,9 @@ public class test_claw extends LinearOpMode {
             else if (gamepad1.b) {
                 claw.setPosition(CLAW_CLOSE);
             }
+            else if (gamepad1.x) {
+                claw.setPosition(CLAW_CLOSE_FOR_SPECIMEN);
+            }
             else if (gamepad1.left_bumper) {
                 claw.setPosition(-gamepad1.left_stick_y);
             }
@@ -67,6 +72,7 @@ public class test_claw extends LinearOpMode {
             telemetry.addData("Status", "Initialized");
             telemetry.addData("gamepad1.a", "= CLAW_OPEN");
             telemetry.addData("gamepad1.b", "= CLAW_CLOSE");
+            telemetry.addData("gamepad1.x", "= CLAW_CLOSE_FOR_SPECIMEN");
             telemetry.addData("gamepad1.left_bumper && left_stick_y", "= manual control");
             telemetry.addData("-gamepad1.left_stick_y", -gamepad1.left_stick_y);
             telemetry.addData("claw.getPosition", claw.getPosition());

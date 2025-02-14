@@ -26,13 +26,14 @@ public final class Bot_Arm {
     public double ARM_STRAIGHT_UP = (90) * ARM_TICKS_PER_DEGREE;
     public double ARM_CLEAR_BUCKET = (100)* ARM_TICKS_PER_DEGREE;
     public double ARM_PREPARE_TO_ASCEND = (100)* ARM_TICKS_PER_DEGREE;
-    public double ARM_SPECIMEN_AFTER_SCORE = (115) * ARM_TICKS_PER_DEGREE;
+    public double ARM_SPECIMEN_AFTER_SCORE = (105) * ARM_TICKS_PER_DEGREE;
     public double ARM_PREPARE_TO_COLLECT_SPECIMEN_AUTO = (170) * ARM_TICKS_PER_DEGREE;
     public double ARM_PREPARE_TO_COLLECT = (174) * ARM_TICKS_PER_DEGREE; // almost parallel to the ground, just above specimen's height
     public double ARM_COLLECTED = ARM_PREPARE_TO_COLLECT;
     public double ARM_COLLECT_SPECIMEN = (177.5) * ARM_TICKS_PER_DEGREE;
     public double ARM_SHOVE = (184)* ARM_TICKS_PER_DEGREE;
     public double ARM_COLLECT_SAMPLE = (190) * ARM_TICKS_PER_DEGREE;
+//    public double ARM_COLLECT_SAMPLE = (189) * ARM_TICKS_PER_DEGREE;
 
     private DcMotorEx armMotor;
     private float desiredAdjustment = 0;
@@ -278,8 +279,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos > ARM_COLLAPSED_INTO_ROBOT+(ARM_FUDGE*ARM_TICKS_PER_DEGREE) ) {
-                armMotor.setTargetPosition((int)((ARM_COLLAPSED_INTO_ROBOT+(ARM_FUDGE*ARM_TICKS_PER_DEGREE))));
+            if (pos > ((ARM_FUDGE + 45) * ARM_TICKS_PER_DEGREE)) {
+                armMotor.setTargetPosition((int) (ARM_FUDGE * ARM_TICKS_PER_DEGREE));
                 return true;
             } else {
                 return false;
