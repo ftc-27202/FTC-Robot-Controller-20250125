@@ -11,7 +11,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @Config
 public final class Bot_Arm {
-    public double ARM_FUDGE = 1.75;
+//    public double ARM_FUDGE = 1.75;
+    public double ARM_FUDGE = 0;
 
     public double ARM_TICKS_PER_DEGREE =
             28 // number of encoder ticks per rotation of the bare motor
@@ -279,8 +280,8 @@ public final class Bot_Arm {
 
             double pos = armMotor.getCurrentPosition();
             packet.put("armMotorPos", pos / ARM_TICKS_PER_DEGREE);
-            if (pos > ((ARM_FUDGE + 45) * ARM_TICKS_PER_DEGREE)) {
-                armMotor.setTargetPosition((int) (ARM_FUDGE * ARM_TICKS_PER_DEGREE));
+            if (pos > (25 * ARM_TICKS_PER_DEGREE)) {
+                armMotor.setTargetPosition((int) ARM_COLLAPSED_INTO_ROBOT);
                 return true;
             } else {
                 return false;

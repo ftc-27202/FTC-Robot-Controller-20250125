@@ -111,7 +111,7 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                                 new ParallelAction(
                                         arm.ArmSpecimenAfterScore(),
                                         drivebase.MoveBackForSpecimen()),
-                                new SleepAction(0.30),
+                                new SleepAction(0.45),
                                 claw.ClawOpen(),
                                 wristRotation.wristRotationVertical(),
                                 arm.ArmUpSpecimenBeforeScore()
@@ -169,7 +169,7 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                                 new ParallelAction(
                                         arm.ArmSpecimenAfterScore(),
                                         drivebase.MoveBackForSpecimen()),
-                                new SleepAction(0.30),
+                                new SleepAction(0.45),
                                 claw.ClawOpen(),
                                 arm.ArmUpSpecimenBeforeScore()
                         ),
@@ -204,7 +204,7 @@ public abstract class jeff_base_auto_specimen extends LinearOpMode {
                                 new ParallelAction(
                                         arm.ArmSpecimenAfterScore(),
                                         drivebase.MoveBackForSpecimen()),
-                                new SleepAction(0.30),
+                                new SleepAction(0.45),
                                 claw.ClawOpen(),
                                 arm.ArmUpSpecimenBeforeScore()
                         ),

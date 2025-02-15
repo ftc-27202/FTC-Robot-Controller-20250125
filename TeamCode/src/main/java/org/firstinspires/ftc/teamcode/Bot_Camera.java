@@ -31,8 +31,10 @@ public final class Bot_Camera {
     public LLResult LimelightResult;
     public LLStatus LimelightStatus;
     public static class Params {
-        public double ANGLE_TO_DISTANCE_X_FACTOR = 0.17;  // conversion for Limelight degrees to inches (very crude)
-        public double ANGLE_TO_DISTANCE_Y_FACTOR = 0.07;  // conversion for Limelight degrees to inches (very crude)
+        public double ANGLE_TO_DISTANCE_X_FACTOR = 0.07;  // conversion for Limelight degrees to inches (very crude)
+        public double ANGLE_TO_DISTANCE_Y_FACTOR = 0.17;  // conversion for Limelight degrees to inches (very crude)
+//        public double ANGLE_TO_DISTANCE_X_FACTOR = 0.17;  // conversion for Limelight degrees to inches (very crude)
+//        public double ANGLE_TO_DISTANCE_Y_FACTOR = 0.07;  // conversion for Limelight degrees to inches (very crude)
     }
 
     public static Bot_Camera.Params PARAMS = new Bot_Camera.Params();
@@ -121,8 +123,8 @@ public final class Bot_Camera {
                 telemetry.addData("Pixel (pixels])", "X: %.2f, Y: %.2f", cr.getTargetXPixels(), cr.getTargetYPixels());
 
 //                crosshair_x = 8 * Math.tan(cr.getTargetXDegrees());
-                crosshair_x = (cr.getTargetXDegrees() * -1) * PARAMS.ANGLE_TO_DISTANCE_X_FACTOR ;  // multiply by negative 1 since the camera is upside down
-                crosshair_y = (cr.getTargetYDegrees() * -1) * PARAMS.ANGLE_TO_DISTANCE_Y_FACTOR;  // less 1 inch, since limelight's crosshair is set to Bottom (unrotated)
+                crosshair_y = (cr.getTargetXDegrees() * -1) * PARAMS.ANGLE_TO_DISTANCE_X_FACTOR ;  // multiply by negative 1 since the camera is upside down
+                crosshair_x = (cr.getTargetYDegrees() * -1) * PARAMS.ANGLE_TO_DISTANCE_Y_FACTOR;  // less 1 inch, since limelight's crosshair is set to Bottom (unrotated)
                 crosshair_angle = 0;
 
                 telemetry.addData("ANGLE_TO_DISTANCE_X_FACTOR", PARAMS.ANGLE_TO_DISTANCE_X_FACTOR);

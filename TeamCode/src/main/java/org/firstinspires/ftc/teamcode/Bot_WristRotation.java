@@ -92,17 +92,17 @@ public final class Bot_WristRotation {
     public class wristRotateManually implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            if (posPriorRotation == WRIST_ROTATION_SPECIMEN) {
+            if (posPriorRotation == WRIST_ROTATION_VERTICAL_ALIGNMENT) {
                 posRotation -= inTriggerValue * 0.0017;
             } else {
                 posRotation += inTriggerValue * 0.0017;
             };
-            if (posRotation > WRIST_ROTATION_SPECIMEN) {
-                posRotation = WRIST_ROTATION_SPECIMEN;
+            if (posRotation > WRIST_ROTATION_VERTICAL_ALIGNMENT) {
+                posRotation = WRIST_ROTATION_VERTICAL_ALIGNMENT;
                 posPriorRotation = posRotation;
             };
-            if (posRotation < WRIST_ROTATION_VERTICAL_ALIGNMENT){
-                posRotation = WRIST_ROTATION_VERTICAL_ALIGNMENT;
+            if (posRotation < WRIST_ROTATION_SPECIMEN){
+                posRotation = WRIST_ROTATION_SPECIMEN;
                 posPriorRotation = posRotation;
             };
 
