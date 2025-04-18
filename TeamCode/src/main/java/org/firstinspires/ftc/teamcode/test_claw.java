@@ -37,8 +37,11 @@ import java.util.List;
 @TeleOp(name = "Test Claw", group = "Test")
 
 public class test_claw extends LinearOpMode {
-    public final double CLAW_OPEN = 0.53;
-    public final double CLAW_CLOSE= 0.15;
+//    public final double CLAW_OPEN = 0.53;
+//    public final double CLAW_CLOSE= 0.15;
+//    public final double CLAW_CLOSE_FOR_SPECIMEN = 0.17;
+    public final double CLAW_OPEN = 0.15;
+    public final double CLAW_CLOSE= 0.53;
     public final double CLAW_CLOSE_FOR_SPECIMEN = 0.17;
 
     private FtcDashboard dash = FtcDashboard.getInstance();

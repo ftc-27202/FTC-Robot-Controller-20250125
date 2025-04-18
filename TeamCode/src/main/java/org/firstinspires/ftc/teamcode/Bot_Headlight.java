@@ -12,12 +12,14 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 @Config
 public final class Bot_Headlight {
     final double HEADLIGHT_OFF = 0;
-    final double HEADLIGHT_ON = 0.5;
+//    final double HEADLIGHT_ON = 0.5;
+    final double HEADLIGHT_ON = 0;
 
     private ServoImplEx headlight;
 
     public Bot_Headlight(HardwareMap hardwareMap) {
         headlight = hardwareMap.get(ServoImplEx.class, "headlight");
+        headlight.setPosition(HEADLIGHT_OFF);
     }
 
     public class headlight_Off implements Action {

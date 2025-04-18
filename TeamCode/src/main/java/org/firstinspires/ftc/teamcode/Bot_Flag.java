@@ -19,6 +19,7 @@ public final class Bot_Flag {
 
     public Bot_Flag(HardwareMap hardwareMap) {
         flag = hardwareMap.get(ServoImplEx.class, "flag");
+        flag.setPosition(FLAG_DOWN);
     }
 
     public class FlagDown implements Action {
@@ -48,7 +49,7 @@ public final class Bot_Flag {
     public class FlagToggle implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            if (flag.getPosition() >= 0.50) {
+            if (flag.getPosition() >= 0.30) {
                 flag.setPosition(FLAG_SCORE);
             }
             else flag.setPosition(FLAG_DOWN);

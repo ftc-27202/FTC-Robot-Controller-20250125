@@ -12,17 +12,17 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 @Config
 public final class Bot_Claw {
     // For physical install, ???
-    public final double CLAW_OPEN = 0.53;
-//    public final double CLAW_CLOSE= 0.14;
-//    public final double CLAW_CLOSE_FOR_SPECIMEN = 0.14;
-    public final double CLAW_CLOSE= 0.15;
+//    public final double CLAW_OPEN = 0.53;
+//    public final double CLAW_CLOSE= 0.15;
+//    public final double CLAW_CLOSE_FOR_SPECIMEN = 0.15;
+//    public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SCORE = 0.22;
+//    public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SLIDE = 0.22;
+
+    public final double CLAW_OPEN = 0.15;
+    public final double CLAW_CLOSE= 0.53;
     public final double CLAW_CLOSE_FOR_SPECIMEN = 0.15;
     public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SCORE = 0.22;
     public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SLIDE = 0.22;
-
-//    public final double CLAW_OPEN = 0.53;
-//    public final double CLAW_CLOSE= 0.15;
-//    public final double CLAW_CLOSE_FOR_SPECIMEN = 0.17;
 
     private ServoImplEx claw;
 

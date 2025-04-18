@@ -35,8 +35,8 @@ import java.util.List;
 //@Disabled
 @TeleOp(name = "Test Bucket", group = "Test")
 public class test_bucket extends LinearOpMode {
-    final double BUCKET_CATCH = 0.70;
-    final double BUCKET_DUMP = 0.10;
+    final double BUCKET_CATCH = 0.45;
+    final double BUCKET_DUMP = 0.80;
 
     private FtcDashboard dash = FtcDashboard.getInstance();
     private List<Action> runningActions = new ArrayList<>();

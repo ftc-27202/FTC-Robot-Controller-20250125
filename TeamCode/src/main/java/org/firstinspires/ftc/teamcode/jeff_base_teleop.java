@@ -65,8 +65,8 @@ public abstract class jeff_base_teleop extends LinearOpMode {
         Bot_LimelightIndicatorLight limelightIndicatorLight = new Bot_LimelightIndicatorLight(hardwareMap);
         Bot_Drivebase drivebase = new Bot_Drivebase(hardwareMap, allianceColor);
 
-        double speed = 1.0;
-        double turn_speed = 1.0;
+        double speed = 0.3;
+        double turn_speed = 0.7;
         double max, axial, lateral, yaw;
         double leftFrontPower, rightFrontPower, leftBackPower, rightBackPower;
 
@@ -94,9 +94,12 @@ public abstract class jeff_base_teleop extends LinearOpMode {
 
         while (opModeIsActive()) {
             // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            axial = -gamepad1.left_stick_y + -(gamepad2.left_stick_y * 0.6);  // Note: pushing stick forward gives negative value
-            lateral = gamepad1.left_stick_x + (gamepad2.left_stick_x * 0.6);
-            yaw = (gamepad1.right_stick_x + (gamepad2.right_stick_x * 0.5)) * turn_speed;
+//            axial = -gamepad1.left_stick_y + -(gamepad2.left_stick_y * 0.6);  // Note: pushing stick forward gives negative value
+//            lateral = gamepad1.left_stick_x + (gamepad2.left_stick_x * 0.6);
+//            yaw = (gamepad1.right_stick_x + (gamepad2.right_stick_x * 0.5)) * turn_speed;
+            axial = -gamepad1.left_stick_y + -(gamepad2.left_stick_y);  // Note: pushing stick forward gives negative value
+            lateral = gamepad1.left_stick_x + (gamepad2.left_stick_x);
+            yaw = (gamepad1.right_stick_x + (gamepad2.right_stick_x)) * turn_speed;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -165,8 +168,8 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                     )));
                 } else if (gamepad1.dpad_up) {
                     // Prepare Sample to Score in High Basket
-                    speed = 0.40;
-                    turn_speed = 0.80;
+//                    speed = 0.40;
+//                    turn_speed = 0.80;
                     runningActions.add(new SequentialAction(
                             new ParallelAction(
                             headlight.headlight_Off(),
@@ -200,8 +203,8 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                     }
                 } else if (gamepad1.x) {
                     // prepare to collect (either sample of specimen)
-                    speed = 1.0;
-                    turn_speed = 1.0;
+//                    speed = 1.0;
+//                    turn_speed = 1.0;
                     runningActions.add(new SequentialAction(
                             new ParallelAction(
                             flag.FlagDown(),
@@ -215,8 +218,8 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                 } else if (gamepad1.left_bumper) {
                     // deposit sample to bucket
                     // Prepare Sample to Score in High Basket
-                    speed = 0.40;
-                    turn_speed = 0.80;
+//                    speed = 0.40;
+//                    turn_speed = 0.80;
                     runningActions.add(new SequentialAction(
                                 new ParallelAction(
                                     headlight.headlight_Off(),
@@ -303,10 +306,20 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                     runningActions.add(new SequentialAction(
                             arm.MoveArm(gamepad2.right_stick_y * 10)
                     ));
+                } else if (gamepad2.dpad_up) {
+                    // flag score
+                    runningActions.add(new SequentialAction(
+                            flag.FlagScore()
+                    ));
+                } else if (gamepad2.dpad_down) {
+                    // flag score
+                    runningActions.add(new SequentialAction(
+                            flag.FlagDown()
+                    ));
                 } else if (gamepad2.x) {
                     // prepare to collect (either sample of specimen)
-                    speed = 1.0;
-                    turn_speed = 1.0;
+//                    speed = 1.0;
+//                    turn_speed = 1.0;
                     runningActions.add(new SequentialAction(
                             new ParallelAction(
                             flag.FlagDown(),
