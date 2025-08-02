@@ -16,7 +16,7 @@ public final class Bot_Bucket {
 //    final double BUCKET_DUMP = 0.10;
     final double BUCKET_INITIAL = 0.0;
     final double BUCKET_CATCH = 0.45;
-    final double BUCKET_DUMP = 0.80;
+    final double BUCKET_DUMP = 1.00;
 
     private ServoImplEx bucket;
 

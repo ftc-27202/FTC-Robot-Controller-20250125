@@ -65,8 +65,8 @@ public abstract class jeff_base_teleop extends LinearOpMode {
         Bot_LimelightIndicatorLight limelightIndicatorLight = new Bot_LimelightIndicatorLight(hardwareMap);
         Bot_Drivebase drivebase = new Bot_Drivebase(hardwareMap, allianceColor);
 
-        double speed = 0.3;
-        double turn_speed = 0.7;
+        double speed = 2.00; //OVERDRIVE ACTIVTED!!!!
+        double turn_speed = 2.00;
         double max, axial, lateral, yaw;
         double leftFrontPower, rightFrontPower, leftBackPower, rightBackPower;
 

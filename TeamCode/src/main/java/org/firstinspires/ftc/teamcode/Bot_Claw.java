@@ -19,7 +19,8 @@ public final class Bot_Claw {
 //    public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SLIDE = 0.22;
 
     public final double CLAW_OPEN = 0.15;
-    public final double CLAW_CLOSE= 0.53;
+    public final double CLAW_CLOSE= 0.45;
+    public final double CLAW_CLOSE_SQUARE_CUBE= 0.53;
     public final double CLAW_CLOSE_FOR_SPECIMEN = 0.15;
     public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SCORE = 0.22;
     public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SLIDE = 0.22;
