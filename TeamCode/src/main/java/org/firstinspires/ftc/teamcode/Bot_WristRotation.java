@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 @Config
 public final class Bot_WristRotation {
     // For physical install,
-    final double WRIST_ROTATION_VERTICAL_ALIGNMENT = 0.98;
-    final double WRIST_ROTATION_HORIZONTAL_ALIGNMENT = 0.60;
+    final double WRIST_ROTATION_VERTICAL_ALIGNMENT = 1.0;
+    final double WRIST_ROTATION_HORIZONTAL_ALIGNMENT = 0.74;
     final double WRIST_ROTATION_SPECIMEN = 0.20;
     final double WRIST_ROTATION_AUTO_SAMPLE_3 = 0.85;
 

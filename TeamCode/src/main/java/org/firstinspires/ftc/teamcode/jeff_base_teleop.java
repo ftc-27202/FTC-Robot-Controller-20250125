@@ -32,6 +32,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,8 +66,8 @@ public abstract class jeff_base_teleop extends LinearOpMode {
         Bot_LimelightIndicatorLight limelightIndicatorLight = new Bot_LimelightIndicatorLight(hardwareMap);
         Bot_Drivebase drivebase = new Bot_Drivebase(hardwareMap, allianceColor);
 
-        double speed = 2.00; //OVERDRIVE ACTIVTED!!!!
-        double turn_speed = 2.00;
+        double speed = 0.60;
+        double turn_speed = 0.40;
         double max, axial, lateral, yaw;
         double leftFrontPower, rightFrontPower, leftBackPower, rightBackPower;
 
@@ -286,9 +287,10 @@ public abstract class jeff_base_teleop extends LinearOpMode {
                             new SequentialAction(
 //                                    drivebase.AlignToNeutralSample("VERTICAL"),
                                     wrist.WristCollect(),
+                                    new SleepAction(0.3), //only for slow gobuilda servo
                                     arm.ArmCollectSample(),
                                     claw.ClawClose(),
-                                    new SleepAction(0.1),
+                                    new SleepAction(1.0), //originally 0.1 but 1.0 only for slow gobuilda servo
                                     arm.ArmCollected())
                     )));
                 } else if (gamepad2.y) {
@@ -445,6 +447,9 @@ public abstract class jeff_base_teleop extends LinearOpMode {
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.addData("runningActions.size()", runningActions.size());
+            ServoImplEx clawtele = hardwareMap.get(ServoImplEx.class, "gripper");
+            telemetry.addData("claw position", clawtele.getPosition());
+
             telemetry.update();
         }
     }

@@ -18,8 +18,8 @@ public final class Bot_Claw {
 //    public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SCORE = 0.22;
 //    public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SLIDE = 0.22;
 
-    public final double CLAW_OPEN = 0.15;
-    public final double CLAW_CLOSE= 0.45;
+    public final double CLAW_OPEN = 0.6;
+    public final double CLAW_CLOSE= 0.9;
     public final double CLAW_CLOSE_SQUARE_CUBE= 0.53;
     public final double CLAW_CLOSE_FOR_SPECIMEN = 0.15;
     public final double CLAW_CLOSE_FOR_SPECIMEN_TO_SCORE = 0.22;
@@ -99,10 +99,9 @@ public final class Bot_Claw {
     public class ClawToggle implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            if (claw.getPosition() > 0.2) {
+            if (claw.getPosition() < 0.75) {
                 claw.setPosition(CLAW_CLOSE);
-            }
-            else {
+            } else {
                 claw.setPosition(CLAW_OPEN);
             };
 

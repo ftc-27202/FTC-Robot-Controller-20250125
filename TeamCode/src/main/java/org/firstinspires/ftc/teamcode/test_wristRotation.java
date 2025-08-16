@@ -36,8 +36,8 @@ import java.util.List;
 @TeleOp(name = "Test Wrist Rotation", group = "Test")
 
 public class test_wristRotation extends LinearOpMode {
-    final double WRIST_ROTATION_VERTICAL_ALIGNMENT = 0.98;
-    final double WRIST_ROTATION_HORIZONTAL_ALIGNMENT = 0.60;
+    final double WRIST_ROTATION_VERTICAL_ALIGNMENT = 1.00;
+    final double WRIST_ROTATION_HORIZONTAL_ALIGNMENT = 0.74;
     final double WRIST_ROTATION_SPECIMEN = 0.20;
     final double WRIST_ROTATION_AUTO_SAMPLE_3 = 0.85;
 
